@@ -7,6 +7,7 @@ using namespace eto;
 
 TEST_CASE("Window is created", "[Window]") {
 	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
 	SECTION("valid parameters") {
 		int isSucsessCreate = w.create(800, 600, "valid test window");
 		REQUIRE( isSucsessCreate == 1 );
@@ -33,6 +34,7 @@ TEST_CASE("Window is created", "[Window]") {
 
 TEST_CASE("Window is resized", "[Window]") {
 	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
 	w.create(800, 600, "resized window");
 	SECTION("valid parameters") {
 		w.setSize(600, 800);
@@ -50,6 +52,7 @@ TEST_CASE("Window is resized", "[Window]") {
 
 TEST_CASE("Window is moved", "[Window]") {
 	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
 	w.create(800, 600, "moved window");
 	w.setPos(0, 0);
 	WinPos pos = w.getPos();
@@ -74,8 +77,40 @@ TEST_CASE("Window is moved", "[Window]") {
 
 TEST_CASE("Window is closed", "[Window]") {
 	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
 	w.create(800, 600, "title");
 	w.setShouldClose(true);
 	REQUIRE( w.isShouldClose() == true );
 }
 
+TEST_CASE("Window key callback is called", "[Window]") {
+	using namespace eto::Input;
+	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
+	w.create(800, 600, "callback window");
+
+	SECTION("Pressed 'A' key") {
+		w.onKeyPress(Key::A, 1, Action::Press, 0);
+		GLFWevent event;
+	       	REQUIRE( w.getEvent(event) == 1 );
+		REQUIRE( event.type == GLFWevent::Type::Key );
+
+		GLFWevent::KeyEvent key = event.key;
+		REQUIRE( key.key == Key::A );
+		REQUIRE( key.action == Action::Press );
+		REQUIRE( key.scancode == 1 );
+		REQUIRE( key.modifier == 0 );
+	}
+	SECTION("Released 'alt+F4' keys") {
+		w.onKeyPress(Key::F4, 1, Action::Release, Modifier::Alt);
+		GLFWevent event;
+	       	REQUIRE( w.getEvent(event) == 1 );
+		REQUIRE( event.type == GLFWevent::Type::Key );
+
+		GLFWevent::KeyEvent key = event.key;
+		REQUIRE( key.key == Key::F4 );
+		REQUIRE( key.action == Action::Release );
+		REQUIRE( key.scancode == 1 );
+		REQUIRE( key.modifier == Modifier::Alt );
+	}
+}
