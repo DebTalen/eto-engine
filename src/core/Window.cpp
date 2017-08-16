@@ -18,7 +18,7 @@ Window::Window()
 {
 }
 
-int Window::create(int w, int h, std::string &title)
+/* int Window::create(int w, int h, std::string &title)
 {
 	if (m_window) 
 		return 0;
@@ -30,8 +30,9 @@ int Window::create(int w, int h, std::string &title)
 		return 0;
 	m_size.x = w;
 	m_size.y = h;
+	prepareCallbacks();
 	return 1;
-}
+} */
 
 int Window::create(int w, int h, std::string &&title)
 {
@@ -45,6 +46,7 @@ int Window::create(int w, int h, std::string &&title)
 		return 0;
 	m_size.x = w;
 	m_size.y = h;
+	prepareCallbacks();
 	return 1;
 }
 
@@ -62,6 +64,11 @@ bool Window::isShouldClose() const
 void Window::setShouldClose(int value) 
 {
 	glfwSetWindowShouldClose(m_window, value);
+}
+
+void Window::pollEvents() 
+{
+	glfwPollEvents();
 }
 
 void Window::setWinHint(int code, int value)
@@ -109,4 +116,43 @@ void Window::setSize(int w, int h)
 WinSize Window::getSize() const 
 {
 	return m_size;
+}
+
+void Window::addEvent(GLFWevent &event)
+{
+	m_eventQueue.push(event);
+}
+
+bool Window::getEvent(GLFWevent &event) 
+{
+	if (m_eventQueue.empty())
+		return 0;
+	event = m_eventQueue.front();
+	m_eventQueue.pop();
+	return 1;
+}
+
+void Window::prepareCallbacks() 
+{
+	glfwSetWindowUserPointer(m_window, this);
+
+	// some dark magic from https://stackoverflow.com/questions/7676971/
+	#define genericCallback(functionName)\
+		[](GLFWwindow *window, auto... args) {\
+			auto ptr = static_cast<Window*>(glfwGetWindowUserPointer(window));\
+			ptr->functionName(args...);\
+		}
+
+	glfwSetKeyCallback(m_window, genericCallback(onKeyPress));
+}
+
+void Window::onKeyPress(int key, int scancode, int action, int mods)
+{
+	GLFWevent event;
+	event.type = GLFWevent::Type::Key;
+	event.key.key = static_cast<Input::Key>(key);
+	event.key.action = static_cast<Input::Action>(action);
+	event.key.modifier = mods;
+	event.key.scancode = scancode;
+	addEvent(event);
 }

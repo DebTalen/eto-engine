@@ -8,8 +8,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/3rd_party")
 
 add_library (my_lib ${sources})
 target_link_libraries(my_lib X11 GLEW glfw GL)
+
 add_executable (eto main.cpp)
-target_compile_options (eto PUBLIC -g -std=c++11 -Wall -Wextra)
+target_compile_options (eto PUBLIC -g -std=c++14 -Wall -Wextra)
 target_link_libraries(eto my_lib X11 GLEW glfw GL)
 
 # this defines the variables Boost_LIBRARIES that contain all library names
