@@ -44,10 +44,10 @@ public:
 	int create(int w, int h, std::string &&title);
 
 	//--------------------------------------------------------------------------------------
-	//      Method:  Window :: isShouldClose
+	//      Method:  Window :: shouldClose
 	// Description:  Returns true if window is to be closed otherwise returns false
 	//--------------------------------------------------------------------------------------
-	bool isShouldClose() const;
+	bool shouldClose() const;
 
 	//--------------------------------------------------------------------------------------
 	//      Method:  Window :: setShouldClose
@@ -87,11 +87,22 @@ public:
 	  *All these functions create a corresponding event and add it to the event queue
 	*/ 
 	//--------------------------------------------------------------------------------------
-	//      Method:  Window :: onKeyPress
+	//      Method:  Window :: onKey
 	// Description:  Callback function for handling keyboard input
 	//--------------------------------------------------------------------------------------
-	void onKeyPress(int key, int scancode, int action, int mods);
+	void onKey(int key, int scancode, int action, int mods);
 
+	//--------------------------------------------------------------------------------------
+	//      Method:  Window :: onMouseButton
+	// Description:  Callback function for handling mouse button input  
+	//--------------------------------------------------------------------------------------
+	void onMouseButton(int button, int action, int mods);
+
+	//--------------------------------------------------------------------------------------
+	//      Method:  Window :: onCursorPosition
+	// Description:  Callback function for hanling cursor position
+	//--------------------------------------------------------------------------------------
+	void onCursorPosition(double x, double y);
 private:
 	void prepareCallbacks();
 	void addEvent(GLFWevent &event);
