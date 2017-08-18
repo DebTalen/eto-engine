@@ -10,13 +10,15 @@ void error_callback(int error, const char *description)
 
 using namespace eto;
 
+
+
+
 int main(void) {
 	Window w;
 	if (!w.create(800, 600, "mega window"))
 		return 1;
 	
-	bool isShouldClose = false;
-	while (!isShouldClose)
+	while (!w.shouldClose())
 	{
 		w.pollEvents();
 		GLFWevent event;
@@ -30,9 +32,10 @@ int main(void) {
 					 std::cout << "released";
 				 else
 					 std::cout << "held";
+
 				 std::cout << ": " << event.key.key << std::endl;
 				 if (event.key.key == Input::Key::Escape)
-					 isShouldClose = true;
+					 w.setShouldClose(true);
 			 }
 		}
 	}

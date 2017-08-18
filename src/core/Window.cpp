@@ -56,7 +56,7 @@ Window::~Window()
 		glfwDestroyWindow(m_window);
 }
 
-bool Window::isShouldClose() const 
+bool Window::shouldClose() const 
 {
 	return glfwWindowShouldClose(m_window);
 }
@@ -120,6 +120,8 @@ WinSize Window::getSize() const
 
 void Window::addEvent(GLFWevent &event)
 {
+	if (m_eventQueue.size() > 100) // change constant value to variable
+		m_eventQueue.pop();
 	m_eventQueue.push(event);
 }
 
@@ -143,10 +145,12 @@ void Window::prepareCallbacks()
 			ptr->functionName(args...);\
 		}
 
-	glfwSetKeyCallback(m_window, genericCallback(onKeyPress));
+	glfwSetKeyCallback(m_window, genericCallback(onKey));
+	glfwSetMouseButtonCallback(m_window, genericCallback(onMouseButton));
+	glfwSetCursorPosCallback(m_window, genericCallback(onCursorPosition));
 }
 
-void Window::onKeyPress(int key, int scancode, int action, int mods)
+void Window::onKey(int key, int scancode, int action, int mods)
 {
 	GLFWevent event;
 	event.type = GLFWevent::Type::Key;
@@ -154,5 +158,24 @@ void Window::onKeyPress(int key, int scancode, int action, int mods)
 	event.key.action = static_cast<Input::Action>(action);
 	event.key.modifier = mods;
 	event.key.scancode = scancode;
+	addEvent(event);
+}
+
+void Window::onMouseButton(int button, int action, int mods)
+{
+	GLFWevent event;
+	event.type = GLFWevent::Type::MouseButton;
+	event.mouseButton.button = static_cast<Input::MouseButton>(button);
+	event.mouseButton.action = static_cast<Input::Action>(action);
+	event.mouseButton.modifier = mods;
+	addEvent(event);
+}
+
+void Window::onCursorPosition(double x, double y)
+{
+	GLFWevent event;
+	event.type = GLFWevent::Type::CursorPosition;
+	event.cursorPos.x = x;
+	event.cursorPos.y = y;
 	addEvent(event);
 }

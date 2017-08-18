@@ -80,7 +80,7 @@ TEST_CASE("Window is closed", "[Window]") {
 	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
 	w.create(800, 600, "title");
 	w.setShouldClose(true);
-	REQUIRE( w.isShouldClose() == true );
+	REQUIRE( w.shouldClose() == true );
 }
 
 TEST_CASE("Window key callback is called", "[Window]") {
@@ -90,7 +90,7 @@ TEST_CASE("Window key callback is called", "[Window]") {
 	w.create(800, 600, "callback window");
 
 	SECTION("Pressed 'A' key") {
-		w.onKeyPress(Key::A, 1, Action::Press, 0);
+		w.onKey(Key::A, 1, Action::Press, 0);
 		GLFWevent event;
 	       	REQUIRE( w.getEvent(event) == 1 );
 		REQUIRE( event.type == GLFWevent::Type::Key );
@@ -102,7 +102,7 @@ TEST_CASE("Window key callback is called", "[Window]") {
 		REQUIRE( key.modifier == 0 );
 	}
 	SECTION("Released 'alt+F4' keys") {
-		w.onKeyPress(Key::F4, 1, Action::Release, Modifier::Alt);
+		w.onKey(Key::F4, 1, Action::Release, Modifier::Alt);
 		GLFWevent event;
 	       	REQUIRE( w.getEvent(event) == 1 );
 		REQUIRE( event.type == GLFWevent::Type::Key );
@@ -114,3 +114,56 @@ TEST_CASE("Window key callback is called", "[Window]") {
 		REQUIRE( key.modifier == Modifier::Alt );
 	}
 }
+
+
+TEST_CASE("Window mouse button callback is called", "[Window]") {
+	using namespace eto::Input;
+	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
+	w.create(100, 100, "title");
+
+	SECTION ("Pressed 'MOUSE_BUTTON_1") {
+		w.onMouseButton(MouseButton::Button1, Action::Press, 0);
+		GLFWevent event;
+		REQUIRE( w.getEvent(event) == 1 );
+		REQUIRE( event.type == GLFWevent::Type::MouseButton );
+
+		GLFWevent::MouseButtonEvent mouse = event.mouseButton;
+		REQUIRE( mouse.button == MouseButton::Button1 );
+		REQUIRE( mouse.action == Action::Press );
+		REQUIRE( mouse.modifier == 0 );
+	}
+	SECTION ("Held 'MOUSE_BUTTON_3 + Conrol + Super") {
+		w.onMouseButton(MouseButton::Button3, Action::Repeat, Modifier::Super | Modifier::Control);
+		GLFWevent event;
+		REQUIRE( w.getEvent(event) == 1 );
+		REQUIRE( event.type == GLFWevent::Type::MouseButton );
+
+		GLFWevent::MouseButtonEvent mouse = event.mouseButton;
+		REQUIRE( mouse.button == MouseButton::Button3);
+		REQUIRE( mouse.action == Action::Repeat );
+		REQUIRE( (mouse.modifier | Modifier::Super) );
+		REQUIRE( (mouse.modifier | Modifier::Control) );
+	}
+}
+
+TEST_CASE("Window mouse position callback is called", "[Window]") {
+	Window w;
+	w.setWinHint(GLFW_VISIBLE, GLFW_FALSE);
+	w.create(100, 100, "title");
+
+	w.onCursorPosition(100, 200);
+	GLFWevent event;
+	REQUIRE( w.getEvent(event) == 1 );
+	REQUIRE( event.type == GLFWevent::Type::CursorPosition );
+	REQUIRE( event.cursorPos.x == 100 );
+	REQUIRE( event.cursorPos.y == 200 );
+
+	w.onCursorPosition(-1, !1);
+	REQUIRE( w.getEvent(event) == 1 );
+	REQUIRE( event.type == GLFWevent::Type::CursorPosition );
+	REQUIRE( event.cursorPos.x == -1 );
+	REQUIRE( event.cursorPos.y == !1 );
+}
+
+
