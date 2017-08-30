@@ -7,6 +7,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/3rd_party")
 
 add_library (my_lib ${sources})
+target_compile_options (my_lib PUBLIC -g -std=c++14 -Wall -Wextra)
 target_link_libraries(my_lib X11 GLEW glfw GL)
 
 add_executable (eto main.cpp)
