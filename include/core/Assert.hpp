@@ -5,6 +5,9 @@
 
 void eto_AssertErrorHandler(const char *message, const char *fileName, unsigned line);
 
+/*!
+ *  \brief  Macro for assertion
+ */
 #define ETO_ASSERT(expr) \
 	if (expr) { }    \
 	else {           \

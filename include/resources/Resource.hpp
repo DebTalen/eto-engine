@@ -5,31 +5,43 @@
 
 namespace eto
 {
-	typedef int ResourceId;
 
-/*
- * =====================================================================================
- *        Class:  Resource
- *  Description:  Base class for all resources
- * =====================================================================================
+/**
+*  @brief  Represents GPU resource
+*/
+struct ResourceHandle
+{
+	typedef uint ResId;
+	static const ResId NULL_ID = 0;
+
+	ResourceHandle() : id(NULL_ID) {}
+	bool isNull() const { return (id == NULL_ID); }
+	ResId getId() const { return id; }
+
+	ResId id; 	/*!< ResId is used to address to the GPU resource*/
+}; 
+
+/**
+ *  @brief  Base class for resources
  */
 class Resource
 {
-	public:
-		Resource();
-		virtual void load() = 0;
-		virtual void unLoad() = 0;
+public:
+	typedef std::int_least64_t Id;
+        virtual ~Resource() {}
+        
+	Resource(): m_id(++sNextId) {}
 
-		ResourceId getId() { return m_id; }
-		bool isLoaded() { return m_loaded; }
+	Id getId() const { return m_id; }
 
-		virtual ~Resource();
-	protected:
-		ResourceId  m_id;
-		bool 	    m_loaded;
-		std::string m_fileName;
+protected:
+	ResourceHandle m_handle;
+private:
+	static Id sNextId;
+	Id        m_id;         /*!< Id is used to uniquely identify the resource */
 
-}; /* -----  end of class Resource  ----- */
-}; // namespace eto
+}; /* end of class Resource */
+
+}
 
 #endif // ETO_RESOURCE_HPP
