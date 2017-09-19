@@ -34,7 +34,7 @@ Window::Window()
 	return 1;
 } */
 
-int Window::create(int w, int h, std::string &&title)
+int Window::create(int w, int h, const std::string &title)
 {
 	if (m_window) 
 		return 0;
@@ -98,7 +98,7 @@ void Window::setSize(WinSize size)
 	}
 }
 
-WinPos Window::getPos() const 
+Window::WinPos Window::getPos() const 
 {
 	return m_pos;
 }
@@ -113,7 +113,7 @@ void Window::setSize(int w, int h)
 	}
 }
 
-WinSize Window::getSize() const 
+Window::WinSize Window::getSize() const 
 {
 	return m_size;
 }

@@ -5,44 +5,44 @@
 
 namespace eto 
 {
-/*
- * TODO: 
- * - Rewrite class so that it won't use union
- */
 
 using namespace eto::Input;
-// =====================================================================================
-//        Class:  GLFWevent
-//  Description:  Class for representing input event
-// =====================================================================================
+
+/*!
+ *  \brief  Represents input event 
+ */
 class GLFWevent
 {
 public:
 	GLFWevent () {}
 	
-	// Types of events
+	/*! \brief Enum of event types */
 	enum Type  {
-		Key, 		// keyboard key presed/releaded/held
-		MouseButton,    // mouse button pressed/released/held
-		CursorPosition, // cursor moved
-		Char,		// character entered
-		WindowPosition, // window moved
-		WindowSize, 	// window resized
-		WindowClose     // window closed
+		Key, 		/*!< Keyboard key presed/releaded/held */
+		MouseButton,    /*!< Mouse utton pressed/released/held */
+		CursorPosition, /*!< Cursor moved */
+		Char,		/*!< Character entered */
+		WindowPosition, /*!< Window moved */
+		WindowSize, 	/*!< Window resized */
+		WindowClose     /*!< Window closed */
 	}  type;
 
+	/*! \brief Structure that represents keyboard event */
 	struct KeyEvent {
-		Input::Key key;
-		int scancode;
-		Action action;
-		int modifier;
-	};
-	struct MouseButtonEvent {
-		Input::MouseButton button;
-		Action action;
-		int modifier;
+		Input::Key key; /*!< Button key */
+		int scancode;   /*!< System specific scancode */
+		Action action;  /*!< Produced action */
+		int modifier; 	/*!< Additional keys modifier (ctrl, alt etc.) */
 	};
 
+	/*! \brief Structure that represents mouse button event */
+	struct MouseButtonEvent {
+		Input::MouseButton button; /*!< Button key */
+		Action action;             /*!< Produced action */
+		int modifier;              /*!< Additional keys modifier (ctrl, alt etc.) */
+	};
+
+	/*! \brief Structure that represents cursor position */
 	struct CursorPositionEvent {
 		double x;
 		double y;
@@ -54,7 +54,7 @@ public:
 		CursorPositionEvent cursorPos;
 	};
 
-}; // -----  end of class GLFWevent  ----- 
+}; // end of class GLFWevent  
 
 
 } // namespace eto
