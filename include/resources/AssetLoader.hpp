@@ -23,7 +23,6 @@ using WPtr = std::weak_ptr<T>;
 class AssetLoader
 {
 public:
-
 	/**
 	 *  @brief  Loads asset using specified loader
 	 *
@@ -31,9 +30,10 @@ public:
 	 *  shared pointer to the Resource or class derived from it
 	 *  @param  path Path to the asset
 	 *  @param  TLoader Type of the loader to load asset
+	 *  @param  args... Additional arguments to pass to TLoader::load
 	 */
-	template <typename TLoader>
-	auto load(const std::string &path)
+	template <typename TLoader, typename... Args>
+	auto load(const std::string &path, Args... args)
 	{
 		std::size_t h = std::hash<std::string>{}(path);
 		auto iter = m_loaded.find(h);
@@ -43,14 +43,14 @@ public:
 			{
 				// if resource is still in memory then return pointer to it
 				// meh...
-				using type = std::remove_pointer_t<decltype(TLoader::load(nullptr).get())>;
+				using type = std::remove_pointer_t<decltype(TLoader::load(nullptr, args...).get())>;
 				return std::static_pointer_cast<type>(iter->second.lock());
 			}
-			auto pRes = TLoader::load(std::make_shared<FileStream>(path)); // else reload it
-			iter->second = pRes;
+			auto pRes = TLoader::load(std::make_shared<FileStream>(path), args...); // else reload it
+			iter->second = std::static_pointer_cast<Resource>(pRes);
 			return pRes;
 		}
-		auto pRes = TLoader::load(std::make_shared<FileStream>(path));
+		auto pRes = TLoader::load(std::make_shared<FileStream>(path), args...);
 		m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
 		return pRes;
 	}
