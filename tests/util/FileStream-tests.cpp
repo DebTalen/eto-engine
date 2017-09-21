@@ -11,7 +11,7 @@ TEST_CASE("FileStream is created", "[FileStream]")
 {
 	SECTION("Existing file read only mode") 
 	{
-		FileStream fs(STRINGFY(ROOT) "/assets/tests/fstreamtests.txt");
+		FileStream fs(STRINGFY(ROOT) "tests/assets/fstreamtests.txt");
 		REQUIRE( fs.isOpen() );
 		REQUIRE( fs.isReadable() );
 		REQUIRE( fs.isWritable() == 0 );
@@ -24,7 +24,7 @@ TEST_CASE("FileStream is created", "[FileStream]")
 	}
 	SECTION("Existing file read and write mode")
 	{
-		FileStream fs(STRINGFY(ROOT) "/assets/tests/fstreamtests.txt", FileStream::Write | FileStream::Read) ;
+		FileStream fs(STRINGFY(ROOT) "tests/assets/fstreamtests.txt", FileStream::Write | FileStream::Read) ;
 		REQUIRE( fs.isOpen() );
 		REQUIRE( fs.isReadable() );
 		REQUIRE( fs.isWritable() );
@@ -42,8 +42,8 @@ TEST_CASE("FileStream is outputted", "[FileStream]")
 	char buf[128];
 	for (int i = 0; i < 128; ++i)
 		buf[i] = rand() % 50;
-	::remove(STRINGFY(ROOT) "/assets/tests/fstreamtests.txt");
-	FileStream fs(STRINGFY(ROOT) "/assets/tests/fstreamtests.txt", FileStream::Write);
+	::remove(STRINGFY(ROOT) "tests/assets/fstreamtests.txt");
+	FileStream fs(STRINGFY(ROOT) "tests/assets/fstreamtests.txt", FileStream::Write);
 	REQUIRE( fs.isOpen() );
 	SECTION("via write() function")
 	{
@@ -55,7 +55,7 @@ TEST_CASE("FileStream is inputted", "[FileStream]")
 {
 	char buf[128];
 	int b = 10;
-	FileStream fs(STRINGFY(ROOT) "/assets/tests/fstreamtests.txt");
+	FileStream fs(STRINGFY(ROOT) "tests/assets/fstreamtests.txt");
 	REQUIRE( fs.isOpen() );
 	SECTION("via read() function")
 	{

@@ -6,7 +6,6 @@
 
 namespace eto
 {
-
 /*!
  *  \brief  Represents file as a stream
  *
