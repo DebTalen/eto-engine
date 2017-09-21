@@ -5,7 +5,6 @@
 #include <util/FileStream.hpp>
 #include <stb_image/stb_image.h>
 
-
 namespace eto 
 {
 
