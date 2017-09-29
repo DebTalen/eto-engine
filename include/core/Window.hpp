@@ -41,7 +41,7 @@ public:
 	 *  \param  w, h width and height of the window
 	 *  \return 0 on fail otherwise 1
 	 */
-	int create(int w, int h, const std::string &title);
+	int create(int w, int h, const std::string &title, bool fullscreen = 0);
 	//int create(int w, int h, std::string &&title);
 
 	/*!
@@ -69,7 +69,8 @@ public:
 	 *  \param  value hint value
 	 */
 	void setWinHint(int code, int value);
-
+	
+	void setInputMode(int code, int value);
 	
 	/*!
 	 *  \brief  Gives the las evnet from the event queue
@@ -114,6 +115,8 @@ public:
 	void onCursorPosition(double x, double y);
 
 	GLFWwindow *getRawPointer() const { return m_window; }
+
+	void swapBuffers() { glfwSwapBuffers(m_window); }
 private:
 	void prepareCallbacks();
 	void addEvent(GLFWevent &event);

@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace eto 
+namespace eto
 {
 	namespace Input
        	{
@@ -15,8 +15,8 @@ namespace eto
 		};
 
 		enum Action {
-			Press, 
-			Release, 
+			Press,
+			Release,
 			Repeat
 		};
 		enum MouseButton
@@ -37,7 +37,7 @@ namespace eto
 		};
 
 		// well...
-		enum Key 
+		enum Key
 		{
 			Unknown = GLFW_KEY_UNKNOWN,
 			Space = GLFW_KEY_SPACE,
