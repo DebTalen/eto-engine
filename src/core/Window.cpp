@@ -34,14 +34,17 @@ Window::Window()
 	return 1;
 } */
 
-int Window::create(int w, int h, const std::string &title)
+int Window::create(int w, int h, const std::string &title, bool fullscreen)
 {
 	if (m_window) 
 		return 0;
 	setWinHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	setWinHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	setWinHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	m_window = glfwCreateWindow(w, h, title.c_str(), nullptr, nullptr);
+	if (fullscreen)
+		m_window = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+	else
+		m_window = glfwCreateWindow(w, h, title.c_str(), NULL, nullptr);
 	if (m_window == NULL)
 		return 0;
 	m_size.x = w;
@@ -74,6 +77,11 @@ void Window::pollEvents()
 void Window::setWinHint(int code, int value)
 {
 	glfwWindowHint(code, value);
+}
+
+void Window::setInputMode(int code, int value)
+{
+	glfwSetInputMode(m_window, code, value);
 }
 
 void Window::setPos(WinPos position)

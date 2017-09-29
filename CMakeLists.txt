@@ -5,10 +5,12 @@ file (GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}
 file (GLOB_RECURSE sources_tests ${PROJECT_SOURCE_DIR}/tests/*.cpp)
 include_directories ("${PROJECT_SOURCE_DIR}/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/3rd_party")
+include_directories ("${PROJECT_SOURCE_DIR}/3rd_party/assimp-4/include")
+link_directories("${PROJECT_SOURCE_DIR}/3rd_party/assimp-4/lib")
 add_subdirectory("3rd_party")
 
-
-set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad" "stb_image" "stb_image_write")
+set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad"
+       	 	 "stb_image" "stb_image_write" "assimp")
 
 add_library (my_lib ${sources})
 target_compile_options (my_lib PUBLIC -g -std=c++14 -Wall -Wextra)

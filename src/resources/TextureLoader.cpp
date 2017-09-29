@@ -4,15 +4,13 @@
 using namespace eto;
 
 // currently does not suppurt 1d and 3d textures 
-SPtr<Texture> TextureLoader::load(SPtr<FileStream> fs)
+SPtr<Texture> TextureLoader::load(const std::string &path)
 {
-	if (! fs->isOpen() || ! fs->isReadable() )
+	if (path.empty())
 		return nullptr;
-	uchar image[fs->getSize()];
-	fs->read(image, fs->getSize());
 
 	int w, h, c;
-	uchar *pData = stbi_load_from_memory(image, fs->getSize(), &w, &h, &c, 0);
+	uchar *pData = stbi_load(path.c_str(), &w, &h, &c, 0);
 	if (pData == NULL)
 		return nullptr;
 

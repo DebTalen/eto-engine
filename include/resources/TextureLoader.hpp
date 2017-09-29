@@ -20,10 +20,10 @@ class TextureLoader
 		 *  @brief  Creates Texture from given FileStream
 		 *
 		 *  Loads image using stb_image library and creates Texture from it
-		 *  @param  fs File stream of the texture
+		 *  @param  path Path to the texture
 		 *  @return Shared pointer to the texture. If creating texture fails returns nullptr
 		 */
-		static SPtr<Texture> load(SPtr<FileStream> fs);
+		static SPtr<Texture> load(const std::string &path);
 
 	private:
 		TextureLoader ();

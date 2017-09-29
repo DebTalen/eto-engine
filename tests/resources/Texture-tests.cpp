@@ -16,7 +16,7 @@ TEST_CASE("Texture is created", "[Texture]")
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 	GLFWwindow *w = glfwCreateWindow(128, 128, "", NULL, NULL);
 	glfwMakeContextCurrent(w);
-	if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))  
+	if (gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))  
 	{
 		AssetLoader loader;
 		SPtr<Texture> t = loader.load<TextureLoader>(STRINGFY(ROOT)"tests/assets/r64g64b64a255.png");

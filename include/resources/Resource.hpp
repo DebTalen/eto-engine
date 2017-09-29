@@ -16,7 +16,6 @@ struct ResourceHandle
 
 	ResourceHandle() : id(NULL_ID) {}
 	bool isNull() const { return (id == NULL_ID); }
-	ResId getId() const { return id; }
 
 	ResId id; 	/*!< ResId is used to address to the GPU resource*/
 }; 

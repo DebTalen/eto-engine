@@ -23,7 +23,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 					"gl_Position = vec4(aPos, 1.0); \n"
 					"vColor = vec4(0.5, 0, 0, 1); }");
 
-		Shader s(ShaderType::Vertex);
+		Shader s(VertexShader);
 		s.compile(src);
 		CHECK ( s.isCompiled() );
 		if (! s.isCompiled() )
@@ -33,7 +33,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 	{
 		std::string src("");
 
-		Shader s(ShaderType::Vertex);
+		Shader s(VertexShader);
 		s.compile(src);
 		REQUIRE_FALSE( s.isCompiled() );
 	}
@@ -43,7 +43,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 				"out vec4 color;\n"
 				"void main() { color = vec4(1, 1, 1, 1); }");
 
-		Shader s(ShaderType::Fragment);
+		Shader s(FragmentShader);
 		s.compile(src);
 		CHECK ( s.isCompiled() );
 		if (! s.isCompiled() )
@@ -53,7 +53,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 	{
 		std::string src("");
 
-		Shader s(ShaderType::Fragment);
+		Shader s(FragmentShader);
 		s.compile(src);
 		REQUIRE_FALSE( s.isCompiled() );
 	}
@@ -62,7 +62,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 		std::string src("#version 330\n"
 				"void main() { gl_Position = vec4(1, 1, 1, 1); }");
 
-		Shader s(ShaderType::Geometry);
+		Shader s(GeometryShader);
 		s.compile(src);
 		CHECK ( s.isCompiled() );
 		if (! s.isCompiled() )
@@ -72,9 +72,9 @@ TEST_CASE("Shader is loaded", "[Shader]")
 	{
 		std::string src("");
 
-		Shader s(ShaderType::Geometry);
+		Shader s(GeometryShader);
 		s.compile(src);
 		REQUIRE_FALSE( s.isCompiled() );
-	} 
+	}
 }
 

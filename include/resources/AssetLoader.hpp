@@ -2,7 +2,6 @@
 #define  ETO_ASSET_LOADER_HPP
 
 #include <resources/Resource.hpp>
-#include <util/FileStream.hpp>
 #include <memory>
 #include <map>
 
@@ -26,8 +25,9 @@ public:
 	/**
 	 *  @brief  Loads asset using specified loader
 	 *
-	 *  Loader type must have static method "load" that returns
-	 *  shared pointer to the Resource or class derived from it
+	 *  Loader type must have static method "load" that takes 
+	 *  at least const string reference and returns shared 
+	 *  pointer to the Resource or class derived from it
 	 *  @param  path Path to the asset
 	 *  @param  TLoader Type of the loader to load asset
 	 *  @param  args... Additional arguments to pass to TLoader::load
@@ -43,14 +43,14 @@ public:
 			{
 				// if resource is still in memory then return pointer to it
 				// meh...
-				using type = std::remove_pointer_t<decltype(TLoader::load(nullptr, args...).get())>;
+				using type = std::remove_pointer_t<decltype(TLoader::load(path, args...).get())>;
 				return std::static_pointer_cast<type>(iter->second.lock());
 			}
-			auto pRes = TLoader::load(std::make_shared<FileStream>(path), args...); // else reload it
+			auto pRes = TLoader::load(path, args...); // else reload it
 			iter->second = std::static_pointer_cast<Resource>(pRes);
 			return pRes;
 		}
-		auto pRes = TLoader::load(std::make_shared<FileStream>(path), args...);
+		auto pRes = TLoader::load(path, args...);
 		m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
 		return pRes;
 	}
