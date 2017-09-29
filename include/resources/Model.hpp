@@ -16,13 +16,15 @@ struct Vertex
 {
 	Vertex(const glm::vec3 &position) 
 		: pos(position)
-	{
-	}
+	{}
 	Vertex(float x, float y, float z)
 		: pos(x, y, z)
-	{
-	}
+	{}
+	Vertex(const glm::vec3 &position, const glm::vec3 &normal)
+		: pos(position), normal(normal) 
+	{}
 	glm::vec3 pos;
+	glm::vec3 normal;
 };
 
 

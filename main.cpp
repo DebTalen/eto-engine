@@ -28,7 +28,7 @@ using glm::vec3;
 // default camera values
 const float YAW   = -90.0f,
             PITCH = 0.0f,
-	    SPEED = 200.0f,
+	    SPEED = 13.0f,
 	    SENS  = 0.07f,
 	    ZOOM  = 45.0f;
 
@@ -82,6 +82,8 @@ public:
 		return glm::lookAt(_pos, _pos + _front, _up);
 	}
 
+	glm::vec3 getPos() const { return _pos; }
+
 	enum CameraMovement {
 		FORWARD  = Input::Key::W,
 		BACKWARD = Input::Key::S,
@@ -104,9 +106,9 @@ public:
 			case RIGHT:
 				_pos += _right * velocity; break;
 			case UPWARD:
-				_pos.y += velocity; break;
+				_pos += _up * velocity; break;
 			case DOWNWARD:
-				_pos.y -= velocity; break;
+				_pos -= _up * velocity; break;
 		}
 	//	_pos.y = 0; for fixed floor
 	}
@@ -157,6 +159,23 @@ int main()
 		if (! sd.isLinked() )
 			cout << sd.getErrorMessage() << endl;
 	}
+	ShaderProgram ls;
+	{
+		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
+		if (! vs->isCompiled())
+			cout << vs->getErrorMessage() << endl;
+
+		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/lightSource.fs", FragmentShader);
+		if (! fs->isCompiled())
+			cout << fs->getErrorMessage() << endl;
+		ls.attachShader(*vs);
+		ls.attachShader(*fs);
+		ls.link();
+		if (! ls.isLinked() )
+			cout << ls.getErrorMessage() << endl;
+	}
+
+	auto sphere = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff");
  
 	auto dragon = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Dragon/Dargon posing.obj");
 	if (! dragon->isLoaded()) {
@@ -173,8 +192,23 @@ int main()
 	float lastX = w.getSize().x / 2,
 	      lastY = w.getSize().y / 2;
 
+	glm::vec3 dragonPos(0, -1, 2);
+	glm::vec3 lightPos(5, 2, 5);
 	glm::mat4 projection = glm::mat4(1.0f);
 	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
+
+	sd.use();
+	glm::mat4 lmodel = glm::mat4(1.0f);
+	lmodel = glm::translate(lmodel, dragonPos);
+	ls.setMat4f("model", lmodel);
+	sd.setMat4f("projection", projection);
+
+	ls.use();
+	ls.setMat4f("projection", projection);
+
+	float rangle = glm::radians(1.0f);
+	float cx = cosf(rangle);
+	float sx = sinf(rangle);
 	GLFWevent e;
 	while (! w.shouldClose())
 	{
@@ -207,31 +241,35 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		sd.use();
+		ls.use();
+		glm::mat4 view = glm::mat4(1.0f);
+		view = camera.getView();
+
+		//lightPos.x = lightPos.x * cx - lightPos.z * sx;
+		//lightPos.z = lightPos.z * cx + lightPos.x * sx;
+		lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+		lightPos.z = sin(glfwGetTime() / 2.0f) * 1.0f;
 
 		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(0.2));
+		model = glm::translate(model, lightPos);
+		ls.setMat4f("model", model);
+		ls.setMat4f("view", view);
 
-		float radius = 180.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
-		view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));  
-		model = glm::translate(model, glm::vec3(0, -30, 0));
-		model = glm::scale(model, glm::vec3(30, 30, 30));
+		sphere->draw();
 
-		view = glm::translate(view, glm::vec3(0, 0, -10));
+		sd.use();
 
-		unsigned int modelLoc = sd.getUniformLocation("model");
-		unsigned int viewLoc  = sd.getUniformLocation("view");
-		unsigned int projLoc  = sd.getUniformLocation("projection");
-
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		sd.setMat4f("view", view);
+		sd.setVec3f("viewPos", camera.getPos());
+		sd.setVec3f("objColor", glm::vec3(1, 0.5, 0.31));
+		sd.setVec3f("lightPos", lightPos);
+		sd.setVec3f("lightColor", glm::vec3(1));
  
 		dragon->draw();
 
 		w.swapBuffers();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 	return 0;
