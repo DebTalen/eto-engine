@@ -1,7 +1,6 @@
 #include <catch/catch.hpp>
 
 #include <resources/Shader.hpp>
-#include <GLFW/glfw3.h>
 
 #include <string>
 
@@ -9,11 +8,6 @@ using namespace eto;
 
 TEST_CASE("Shader is loaded", "[Shader]")
 {
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	GLFWwindow *w = glfwCreateWindow(128, 128, "", NULL, NULL);
-	glfwMakeContextCurrent(w);
-	REQUIRE( gladLoadGLLoader((GLADloadproc) glfwGetProcAddress));
-
 	SECTION("Valid vertex shader")
 	{
 		std::string src("#version 330 core \n"
