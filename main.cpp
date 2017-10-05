@@ -131,9 +131,9 @@ public:
 int main()
 {
 	Window w;
-	w.create(800, 800, "a");
+	w.create(1280, 720, "a");
 	w.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	w.setPos({200, 100});
+	w.setPos({0, 100});
 	glfwMakeContextCurrent(w.getRawPointer());
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -143,8 +143,8 @@ int main()
 	}
 	glEnable(GL_DEPTH_TEST);
 
-	AssetLoader loader;
-	ShaderProgram sd;
+	AssetLoader loader = AssetLoader::getInstance();
+	SPtr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
 	{
 		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
 		if (! vs->isCompiled())
@@ -153,13 +153,13 @@ int main()
 		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.fs", FragmentShader);
 		if (! fs->isCompiled())
 			cout << fs->getErrorMessage() << endl;
-		sd.attachShader(*vs);
-		sd.attachShader(*fs);
-		sd.link();
-		if (! sd.isLinked() )
-			cout << sd.getErrorMessage() << endl;
+		sd->attachShader(*vs);
+		sd->attachShader(*fs);
+		sd->link();
+		if (! sd->isLinked() )
+			cout << sd->getErrorMessage() << endl;
 	}
-	ShaderProgram ls;
+	SPtr<ShaderProgram> ls = std::make_shared<ShaderProgram>();
 	{
 		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
 		if (! vs->isCompiled())
@@ -168,20 +168,70 @@ int main()
 		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/lightSource.fs", FragmentShader);
 		if (! fs->isCompiled())
 			cout << fs->getErrorMessage() << endl;
-		ls.attachShader(*vs);
-		ls.attachShader(*fs);
-		ls.link();
-		if (! ls.isLinked() )
-			cout << ls.getErrorMessage() << endl;
+		ls->attachShader(*vs);
+		ls->attachShader(*fs);
+		ls->link();
+		if (! ls->isLinked() )
+			cout << ls->getErrorMessage() << endl;
+	}
+	auto ws = std::make_shared<ShaderProgram>();
+	{
+		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.vs", VertexShader);
+		if (! vs->isCompiled())
+			cout << vs->getErrorMessage() << endl;
+
+		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.fs", FragmentShader);
+		if (! fs->isCompiled())
+			cout << fs->getErrorMessage() << endl;
+		ws->attachShader(*vs);
+		ws->attachShader(*fs);
+		ws->link();
+		if (! ws->isLinked() )
+			cout << ws->getErrorMessage() << endl;
 	}
 
-	auto sphere = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff");
+
+	auto light = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ls);
+	if (! light->isLoaded()) {
+		std::cerr << light->getErrorMessage() << endl;
+		return 31;
+	}
  
-	auto dragon = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Dragon/Dargon posing.obj");
+	auto mmap = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/awp_india/awp_india.obj", sd);
+	if (! mmap->isLoaded()) {
+		std::cerr << mmap->getErrorMessage() << endl;
+		return 31;
+	}
+	
+	auto artas = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Lich_King/Lich_King.obj", sd);
+	if (! artas->isLoaded()) {
+		std::cerr << artas->getErrorMessage() << endl;
+		return 31;
+	}
+
+	auto dragon = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Dragon/Dargon posing.obj", sd);
 	if (! dragon->isLoaded()) {
 		std::cerr << dragon->getErrorMessage() << endl;
 		return 31;
 	}
+
+	auto librarian = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Librarian/Librarian.obj", ws);
+	if (! librarian->isLoaded()) {
+		cout << librarian->getErrorMessage() << endl;
+		return 32;
+	}
+
+	auto leviathan = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Leviathan/leviathan.obj", ws);
+	if (! leviathan->isLoaded()) {
+		cout << leviathan->getErrorMessage() << endl;
+		return 32;
+	}
+	auto toilet = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Toilet/Toilet.obj", ws);
+	if (! toilet->isLoaded()) {
+		cout << toilet->getErrorMessage() << endl;
+		return 32;
+	}
+	mmap->print();
 
  //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -192,23 +242,23 @@ int main()
 	float lastX = w.getSize().x / 2,
 	      lastY = w.getSize().y / 2;
 
-	glm::vec3 dragonPos(0, -1, 2);
-	glm::vec3 lightPos(5, 2, 5);
+	glm::vec3 mapPos(0, 0, -10);
+	glm::vec3 lightPos(0, 10, 0);
+	glm::vec3 artasPos(-6, -2, 0);
+	glm::vec3 dragonPos(5, 0, 0);
+	glm::vec3 libPos(0, 0, -2);
+	glm::vec3 levPos(0, -2, 4);
+	glm::vec3 toiletPos(0, 0, 0);
 	glm::mat4 projection = glm::mat4(1.0f);
+
 	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
+	sd->use();
+	sd->setMat4f("projection", projection);
+	ls->use();
+	ls->setMat4f("projection", projection);
+	ws->use();
+	ws->setMat4f("projection", projection);
 
-	sd.use();
-	glm::mat4 lmodel = glm::mat4(1.0f);
-	lmodel = glm::translate(lmodel, dragonPos);
-	ls.setMat4f("model", lmodel);
-	sd.setMat4f("projection", projection);
-
-	ls.use();
-	ls.setMat4f("projection", projection);
-
-	float rangle = glm::radians(1.0f);
-	float cx = cosf(rangle);
-	float sx = sinf(rangle);
 	GLFWevent e;
 	while (! w.shouldClose())
 	{
@@ -241,32 +291,65 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ls.use();
 		glm::mat4 view = glm::mat4(1.0f);
 		view = camera.getView();
 
-		//lightPos.x = lightPos.x * cx - lightPos.z * sx;
-		//lightPos.z = lightPos.z * cx + lightPos.x * sx;
-		lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-		lightPos.z = sin(glfwGetTime() / 2.0f) * 1.0f;
-
+		ls->use();
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::scale(model, glm::vec3(0.2));
 		model = glm::translate(model, lightPos);
-		ls.setMat4f("model", model);
-		ls.setMat4f("view", view);
+		ls->setMat4f("model", model);
+		ls->setMat4f("view", view);
+		light->draw();
 
-		sphere->draw();
+		sd->use();
+		sd->setMat4f("view", view);
+		sd->setVec3f("viewPos", camera.getPos());
+		sd->setVec3f("light_position", lightPos);
+		sd->setVec3f("light_ambient", vec3(0.5));
 
-		sd.use();
+		glm::mat4 lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, mapPos);
+		lmodel = glm::scale(lmodel, glm::vec3(0.02));
+		sd->setMat4f("model", lmodel);
+		mmap->draw();
 
-		sd.setMat4f("view", view);
-		sd.setVec3f("viewPos", camera.getPos());
-		sd.setVec3f("objColor", glm::vec3(1, 0.5, 0.31));
-		sd.setVec3f("lightPos", lightPos);
-		sd.setVec3f("lightColor", glm::vec3(1));
- 
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, artasPos);
+		lmodel = glm::scale(lmodel, glm::vec3(4.0f));
+		sd->setMat4f("model", lmodel);
+		artas->draw();
+
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, dragonPos);
+		lmodel = glm::rotate(lmodel, glm::radians(200.0f), glm::vec3(0, 1, 0));
+		lmodel = glm::scale(lmodel, glm::vec3(3.0f));
+		sd->setMat4f("model", lmodel);
 		dragon->draw();
+
+		ws->use();
+		ws->setMat4f("view", view);
+		ws->setVec3f("viewPos", camera.getPos());
+		ws->setVec3f("light_position", lightPos);
+
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, libPos);
+		lmodel = glm::scale(lmodel, glm::vec3(0.02));
+		ws->setMat4f("model", lmodel);
+		librarian->draw();
+
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, levPos);
+		lmodel = glm::scale(lmodel, glm::vec3(0.02));
+		lmodel = glm::rotate(lmodel, glm::radians(180.0f), glm::vec3(0, 1, 0));
+		ws->setMat4f("model", lmodel);
+		leviathan->draw();
+
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, toiletPos);
+		lmodel = glm::scale(lmodel, glm::vec3(0.02));
+		ws->setMat4f("model", lmodel);
+		toilet->draw();
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
