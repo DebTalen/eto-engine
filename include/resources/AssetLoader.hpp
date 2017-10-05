@@ -54,7 +54,16 @@ public:
 		m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
 		return pRes;
 	}
+
+	/* template <typename TLoader, typename... Args>
+	auto reload(const std::string &path, Args... args)
+	{
+	}
+ */	static AssetLoader &getInstance();
+
 private:
+	AssetLoader();
+
 	std::map<std::size_t, WPtr<Resource>> m_loaded;
 };
 
