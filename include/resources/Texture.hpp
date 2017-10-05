@@ -32,14 +32,13 @@ namespace Image
 	};
 }
 
-
 /**
 *  @brief  Represents texture in memory
 */
 class Texture: public Resource
 {
 public:
-	/*! Contain texture propreties */
+	/** Contain texture propreties */
 	struct TextureProps
 	{
 		Image::Type   type = Image::Type::Tex_2D;
@@ -80,9 +79,10 @@ public:
 	 *  @return Shared pointer to the new Texture or nullptr if creations fails
 	 */
 	static SPtr<Texture> create(const std::vector<uchar> &data, const TextureProps &tp = {});
-	//static SPtr<Texture> create(const TextureProps &tp = {});
 	~Texture();
 private:
+	// temporary, should be replaced by Renderer
+	friend class Model;
 	explicit Texture(const TextureProps &tp, const std::vector<uchar> &data);
 	//explicit Texture(const TextureProps &tp);
 

@@ -18,19 +18,31 @@ namespace eto
 class ModelLoader 
 {
 public:
+	/** Flags of additional steps after loading */
+	enum Flags {
+		FlagTriangulate = aiProcess_Triangulate,
+		FlagGenNormals = aiProcess_GenNormals,
+		FlagOptimize   = aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes
+	};
 	/**
 	 *  @brief  Loads model sprcified by path
 	 *
 	 *  @param  path Path to the model file
 	 *  @return Shared pointer to the loaded Model.
 	 */
-	static SPtr<Model> load(const std::string &path);
+	static SPtr<Model> load(const std::string &path,
+				const SPtr<ShaderProgram> pShader, 
+				int loadingFlags = Flags::FlagTriangulate |
+						   Flags::FlagGenNormals  |
+						   Flags::FlagOptimize  ); 
 private:
 	ModelLoader () {}
 
-	static void processNode(const aiScene *scene, const aiNode *node, std::vector<SPtr<Mesh>> &m/*, std::vector<Texture> t */);
+	static void processNode(const aiScene *scene, const aiNode *node, SPtr<Model> model, const std::string &path);
 
-	static void processMesh(const aiScene *scene, const aiMesh *mesh, std::vector<Vertex> &v, std::vector<uint> &ic);
+	static SPtr<Mesh> processMesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
+
+	static void processMaterial(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
 };
 
 }
