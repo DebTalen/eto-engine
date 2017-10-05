@@ -1,6 +1,4 @@
 #include <catch/catch.hpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include <resources/ModelLoader.hpp>
 
@@ -8,50 +6,58 @@ using namespace eto;
 
 TEST_CASE("Mesh is loaded", "[Model]")
 {
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	GLFWwindow *w = glfwCreateWindow(128, 128, "", NULL, NULL);
-	glfwMakeContextCurrent(w);
-	if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))  
-		FAIL( "Failed to load GLAD");
-
 	std::vector<Vertex> v = {
-		{ -0.5,  0.5, 0.0,},  // Top Left 
-		{ 0.5,  0.5, 0.0,},  // Top Right
-		{ -0.5, -0.5, 0.0,},  // Bottom Left
-		{ 0.5, -0.5, 0.0}   // Bottom Right
+		{{ -0.5,  0.5, 0.0,}, {0.0f, 0.0f, -1.0f }, {0, 0}},// Top Left 
+		{{ 0.5,  0.5, 0.0,},  {0.0f, 0.0f, -1.0f }, {0, 0}},// Top Right
+		{{ -0.5, -0.5, 0.0,}, {0.0f, 0.0f, -1.0f }, {0, 0}},// Bottom Left
+		{{ 0.5, -0.5, 0.0},   {0.0f, 0.0f, -1.0f }, {0, 0}} // Bottom Right
 	};
 	std::vector<uint> i= {
 		0, 3, 2,
 		0, 1, 3
 	};
-	Mesh mesh(v, i);
+	Mesh mesh;
+	mesh.setGeometry(v, i);
 	REQUIRE( glGetError() == GL_NO_ERROR );
-	REQUIRE( mesh.numIndices == i.size() );
-	REQUIRE( mesh.numVertices == v.size() );
+	REQUIRE( mesh.getNumIndices() == i.size() );
+	REQUIRE( mesh.getNumVertices() == v.size() );
+
+	Material material;
+	material.textures.push_back(std::pair<Material::TextureType, SPtr<Texture>>(Material::TexDiffuse, nullptr));
+	material.textures.push_back(std::pair<Material::TextureType, SPtr<Texture>>(Material::TexDiffuse, nullptr));
+	mesh.setMaterial(material);
+	REQUIRE( mesh.getNumTextures() == 2 );
 }
 
 TEST_CASE("Model is loaded", "[Model]")
 {
+	SPtr<ShaderProgram> sp = std::make_shared<ShaderProgram>();
+	Model model(sp);
+	REQUIRE( model.isLoaded() == false );
+	REQUIRE( model.getNumMeshes() == 0 );
+	REQUIRE( model.getMesh(0) == nullptr );
+	REQUIRE( model.removeMesh(1) == false);
+	REQUIRE( model.getTransform() == glm::mat4(1.0f) );
+	REQUIRE( model.getShaderProgram() == sp );
+	REQUIRE( model.getErrorMessage() == "");
 
-	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	GLFWwindow *w = glfwCreateWindow(128, 128, "", NULL, NULL);
-	glfwMakeContextCurrent(w);
-	if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))  
-		FAIL( "Failed to load GLAD");
-	AssetLoader loader;
-	SPtr<Model> model = std::make_shared<Model>();
-	REQUIRE( model->isLoaded() == false );
-	SECTION("Valid model")
-	{
-		model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/tests/assets/testsphere.nff");
-		REQUIRE( glGetError() == GL_NO_ERROR );
-		REQUIRE( model->isLoaded() );
-	}
-	SECTION("Invalid model")
-	{
-		model = loader.load<ModelLoader>("non-existing");
-		REQUIRE( model->isLoaded() == false );
-		//WARN( model->getErrorMessage() );
-	}
+	SPtr<Mesh> mesh = std::make_shared<Mesh>();
+	model.addMesh(mesh);
+	REQUIRE( model.isLoaded() == true );
+	REQUIRE( model.getNumMeshes() == 1 );
+	REQUIRE( model.getMesh(0) == mesh );
+	SPtr<Mesh> mesh2 = std::make_shared<Mesh>();
+	model.addMesh(mesh2);
+	REQUIRE( model.isLoaded() == true );
+	REQUIRE( model.getNumMeshes() == 2 );
+	REQUIRE( model.getMesh(1) == mesh2 );
+	REQUIRE( model.removeMesh(0) == true);
+	REQUIRE( model.getNumMeshes() == 1 );
+	REQUIRE( model.getMesh(0) == mesh2 );
+
+	glm::mat4 mat = glm::mat4(20.0f);
+	model.setTranform(mat);
+	REQUIRE( model.getTransform() == mat );
 }
+
 

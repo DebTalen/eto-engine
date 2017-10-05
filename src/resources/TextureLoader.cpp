@@ -10,6 +10,7 @@ SPtr<Texture> TextureLoader::load(const std::string &path)
 		return nullptr;
 
 	int w, h, c;
+	stbi_set_flip_vertically_on_load(true);
 	uchar *pData = stbi_load(path.c_str(), &w, &h, &c, 0);
 	if (pData == NULL)
 		return nullptr;

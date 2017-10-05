@@ -29,9 +29,12 @@ public:
 	/** Temporary function */
 	GLuint getRaw() const { return m_program; }
 
+	void setInt(const std::string &name, float val);
 	void setFloat(const std::string &name, float val);
 	void setVec2f(const std::string &name, glm::fvec2 vec);
+	void setVec2f(const std::string &name, float x, float y);
 	void setVec3f(const std::string &name, glm::fvec3 vec);
+	void setVec3f(const std::string &name, float x, float y, float z);
 	void setMat4f(const std::string &name, glm::fmat4 mat);
 
 private:

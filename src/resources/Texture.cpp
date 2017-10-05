@@ -3,6 +3,7 @@
 
 using namespace eto;
 
+//should be rewrited so to not return nullptr
 SPtr<Texture> Texture::create(const std::vector<uchar> &data, const TextureProps &tp)
 {
 	if (data.size() < 1 || tp.width < 1 || tp.height < 1)
@@ -47,6 +48,7 @@ Texture::Texture(const TextureProps &tp, const std::vector<uchar> &data)
 	if (m_tp.isMipmap)
 		glGenerateMipmap(m_tp.type);
 	m_loaded = (glGetError() == GL_NO_ERROR) ? true : false;
+	glBindTexture(m_tp.type, 0);
 }
 
 Texture::~Texture()

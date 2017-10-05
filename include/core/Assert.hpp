@@ -1,13 +1,10 @@
 #ifndef ETO_ASSERT_HPP
 #define ETO_ASSERT_HPP
 
-#ifdef ASSERTIONS_ENABLED
-
 void eto_AssertErrorHandler(const char *message, const char *fileName, unsigned line);
 
-/*!
- *  \brief  Macro for assertion
- */
+#ifdef ETO_ASSERTIONS_ENABLED
+
 #define ETO_ASSERT(expr) \
 	if (expr) { }    \
 	else {           \
@@ -18,6 +15,6 @@ void eto_AssertErrorHandler(const char *message, const char *fileName, unsigned 
 
 #define ETO_ASSERT(expr) // evaluates to nothing
 
-#endif // ASSERTIONS_ENABLED
+#endif // ETO_ASSERTIONS_ENABLED
 
 #endif // ETO_ASSERT_HPP
