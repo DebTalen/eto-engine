@@ -3,17 +3,22 @@
 
 using namespace eto;
 
-// currently does not suppurt 1d and 3d textures 
 SPtr<Texture> TextureLoader::load(const std::string &path)
 {
-	if (path.empty())
-		return nullptr;
+	if (path.empty()) {
+		SPtr<Texture> fail = std::make_shared<Texture>();
+		fail->setErrorMessage("Invalid file name");
+		return fail;
+	}
 
 	int w, h, c;
 	stbi_set_flip_vertically_on_load(true);
 	uchar *pData = stbi_load(path.c_str(), &w, &h, &c, 0);
-	if (pData == NULL)
-		return nullptr;
+	if (pData == NULL) {
+		SPtr<Texture> fail = std::make_shared<Texture>();
+		fail->setErrorMessage("Invalid file name: " + path);
+		return fail;
+	}
 
 	Texture::TextureProps tp;
 	tp.width = w;
@@ -25,5 +30,7 @@ SPtr<Texture> TextureLoader::load(const std::string &path)
 
 	std::vector<uchar> data(pData, pData + (w * h * c));
 	stbi_image_free(pData);
-	return Texture::create(data, tp);
+	SPtr<Texture> texture = std::make_shared<Texture>(tp);
+	texture->write(data);
+	return texture;
 }

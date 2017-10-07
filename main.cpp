@@ -196,12 +196,6 @@ int main()
 		std::cerr << light->getErrorMessage() << endl;
 		return 31;
 	}
- 
-	auto mmap = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/awp_india/awp_india.obj", sd);
-	if (! mmap->isLoaded()) {
-		std::cerr << mmap->getErrorMessage() << endl;
-		return 31;
-	}
 	
 	auto artas = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Lich_King/Lich_King.obj", sd);
 	if (! artas->isLoaded()) {
@@ -209,29 +203,14 @@ int main()
 		return 31;
 	}
 
-	auto dragon = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Dragon/Dargon posing.obj", sd);
-	if (! dragon->isLoaded()) {
-		std::cerr << dragon->getErrorMessage() << endl;
-		return 31;
+	auto cacke1 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", sd);
+	if (! cacke1->isLoaded()) {
+		std::cerr << cacke1->getErrorMessage() << std::endl;
+		return 33;
 	}
 
-	auto librarian = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Librarian/Librarian.obj", ws);
-	if (! librarian->isLoaded()) {
-		cout << librarian->getErrorMessage() << endl;
-		return 32;
-	}
-
-	auto leviathan = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Leviathan/leviathan.obj", ws);
-	if (! leviathan->isLoaded()) {
-		cout << leviathan->getErrorMessage() << endl;
-		return 32;
-	}
-	auto toilet = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Toilet/Toilet.obj", ws);
-	if (! toilet->isLoaded()) {
-		cout << toilet->getErrorMessage() << endl;
-		return 32;
-	}
-	mmap->print();
+	light->print();
+	artas->print();
 
  //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -242,13 +221,8 @@ int main()
 	float lastX = w.getSize().x / 2,
 	      lastY = w.getSize().y / 2;
 
-	glm::vec3 mapPos(0, 0, -10);
 	glm::vec3 lightPos(0, 10, 0);
 	glm::vec3 artasPos(-6, -2, 0);
-	glm::vec3 dragonPos(5, 0, 0);
-	glm::vec3 libPos(0, 0, -2);
-	glm::vec3 levPos(0, -2, 4);
-	glm::vec3 toiletPos(0, 0, 0);
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
@@ -309,47 +283,15 @@ int main()
 		sd->setVec3f("light_ambient", vec3(0.5));
 
 		glm::mat4 lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, mapPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		sd->setMat4f("model", lmodel);
-		mmap->draw();
-
-		lmodel = glm::mat4(1.0f);
 		lmodel = glm::translate(lmodel, artasPos);
-		lmodel = glm::scale(lmodel, glm::vec3(4.0f));
+		lmodel = glm::scale(lmodel, glm::vec3(0.2f));
 		sd->setMat4f("model", lmodel);
-		artas->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, dragonPos);
-		lmodel = glm::rotate(lmodel, glm::radians(200.0f), glm::vec3(0, 1, 0));
-		lmodel = glm::scale(lmodel, glm::vec3(3.0f));
-		sd->setMat4f("model", lmodel);
-		dragon->draw();
+		cacke1->draw();
 
 		ws->use();
 		ws->setMat4f("view", view);
 		ws->setVec3f("viewPos", camera.getPos());
 		ws->setVec3f("light_position", lightPos);
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, libPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		ws->setMat4f("model", lmodel);
-		librarian->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, levPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		lmodel = glm::rotate(lmodel, glm::radians(180.0f), glm::vec3(0, 1, 0));
-		ws->setMat4f("model", lmodel);
-		leviathan->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, toiletPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		ws->setMat4f("model", lmodel);
-		toilet->draw();
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

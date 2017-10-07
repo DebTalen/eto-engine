@@ -81,7 +81,7 @@ std::string Model::getErrorMessage() const
 
 void Model::draw()
 {
-	if (! m_loaded)
+	if (! isLoaded())
 		return;
 	m_shader->use();
 	std::string name; // very bad aproach

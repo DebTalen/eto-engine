@@ -84,12 +84,7 @@ void ModelLoader::processMaterial(const aiMaterial *mat, aiTextureType aiType, M
 		std::replace(str.begin(), str.end(), '\\', '/');
 		if (str.at(0) != '/')
 			str.insert(0, "/");
-		std::cout << str << std::endl;
-
 		SPtr<Texture> texture = loader.load<TextureLoader>(std::string(path + str));
-		// temporary measure 
-		if (texture == nullptr)
-			continue;
 		material.textures.push_back(pair<Material::TextureType, SPtr<Texture>>(type, texture));
 	}
 }

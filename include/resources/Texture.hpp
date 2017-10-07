@@ -51,14 +51,17 @@ public:
 		TextureProps() {}
 	};
 
+	explicit Texture(const TextureProps &tp = {});
+
+	~Texture();
+
 	/**
 	 *  @brief  Writes data from buffer and transfers it to internal GPU texture
 	 *  
-	 *  It overrides existing texture data 
+	 *  This will override existing texture data 
 	 *  @param  data Buffer that contains data
-	 *  @return 0 if failed otherwise 1
 	 */
-	int write(const std::vector<uchar> &data);
+	void write(const std::vector<uchar> &data); // should also add subrectangle region to change
 
 	/**
 	 *  @brief Reads internal GPU texture data to the specified buffer
@@ -68,27 +71,28 @@ public:
 
 	uint getWidth() const { return m_tp.width; }
 	uint getHeight() const { return m_tp.height; }
+	uint getDepth() const { return m_tp.depth; }
 	uint getComponents() const { return (m_tp.format == Image::Format::Tex_RGB) ? 3 : 4; }
 	bool isLoaded() const { return m_loaded; }
+	bool isMipmaped() const { return m_tp.isMipmap; }
 	std::size_t getDataSize() const { return m_dataSize; }
-
-	/**
-	 *  @brief  Creates new Texture from sprcified data
-	 *  @param  data Texture data
-	 *  @param  tp Texture propreties
-	 *  @return Shared pointer to the new Texture or nullptr if creations fails
-	 */
-	static SPtr<Texture> create(const std::vector<uchar> &data, const TextureProps &tp = {});
-	~Texture();
+	std::string getErrorMessage() const { return m_error; }
 private:
+	Texture(const Texture &rhs) = delete;
+	Texture &operator= (const Texture &rhs) = delete;
+
+	int load(const std::vector<uchar> &data); 
+	GLint getPrevTexBind();
+
 	// temporary, should be replaced by Renderer
 	friend class Model;
-	explicit Texture(const TextureProps &tp, const std::vector<uchar> &data);
-	//explicit Texture(const TextureProps &tp);
+	friend class TextureLoader;
+	void setErrorMessage(const std::string &error) { m_error = error; }
 
 	TextureProps m_tp;
 	bool	     m_loaded;
 	std::size_t  m_dataSize;
+	std::string  m_error;
 };
 }
 

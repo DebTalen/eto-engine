@@ -15,18 +15,19 @@ namespace eto
  */
 class TextureLoader
 {
-	public:
-		/**
-		 *  @brief  Creates Texture from given FileStream
-		 *
-		 *  Loads image using stb_image library and creates Texture from it
-		 *  @param  path Path to the texture
-		 *  @return Shared pointer to the texture. If creating texture fails returns nullptr
-		 */
-		static SPtr<Texture> load(const std::string &path);
+public:
+	/**
+	 *  @brief  Creates Texture from given FileStream
+	 *
+	 *  Loads image using stb_image library and creates Texture from it.
+	 *  Currently does not suppurt 1d and 3d textures.
+	 *  @param  path Path to the texture
+	 *  @return Shared pointer to the texture. Check the isLoaded flag to see if the texture loaded or not.
+	 */
+	static SPtr<Texture> load(const std::string &path);
 
-	private:
-		TextureLoader ();
+private:
+	TextureLoader ();
 }; // end of class TextureLoader 
 
 }
