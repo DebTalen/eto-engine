@@ -196,21 +196,20 @@ int main()
 		std::cerr << light->getErrorMessage() << endl;
 		return 31;
 	}
-	
-	auto artas = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Lich_King/Lich_King.obj", sd);
-	if (! artas->isLoaded()) {
-		std::cerr << artas->getErrorMessage() << endl;
-		return 31;
-	}
 
-	auto cacke1 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", sd);
+	auto cacke1 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", ws);
 	if (! cacke1->isLoaded()) {
 		std::cerr << cacke1->getErrorMessage() << std::endl;
 		return 33;
 	}
 
+	auto cacke2 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Polygon Terrain/terrain.blend", ws); 
+	if (! cacke2->isLoaded()) {
+		std::cerr << cacke2->getErrorMessage() << std::endl;
+		return 33;
+	}
+
 	light->print();
-	artas->print();
 
  //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -222,6 +221,9 @@ int main()
 	      lastY = w.getSize().y / 2;
 
 	glm::vec3 lightPos(0, 10, 0);
+	glm::vec3 cacke1Pos(0, 0, 4);
+	glm::vec3 cacke2Pos(2, 0, 4);
+	glm::vec3 cacke3Pos(-2, 0, 4);
 	glm::vec3 artasPos(-6, -2, 0);
 	glm::mat4 projection = glm::mat4(1.0f);
 
@@ -282,16 +284,23 @@ int main()
 		sd->setVec3f("light_position", lightPos);
 		sd->setVec3f("light_ambient", vec3(0.5));
 
-		glm::mat4 lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, artasPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.2f));
-		sd->setMat4f("model", lmodel);
-		cacke1->draw();
-
 		ws->use();
 		ws->setMat4f("view", view);
 		ws->setVec3f("viewPos", camera.getPos());
 		ws->setVec3f("light_position", lightPos);
+
+		glm::mat4 lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, cacke1Pos);
+		lmodel = glm::rotate(lmodel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		lmodel = glm::scale(lmodel, glm::vec3(0.1f));
+		ws->setMat4f("model", lmodel);
+		cacke1->draw();
+
+		lmodel = glm::mat4(1.0f);
+		lmodel = glm::translate(lmodel, cacke2Pos);
+		lmodel = glm::rotate(lmodel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		ws->setMat4f("model", lmodel);
+		cacke2->draw();
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

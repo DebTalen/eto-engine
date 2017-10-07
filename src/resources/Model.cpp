@@ -108,6 +108,10 @@ void Model::draw()
 		}
 		glActiveTexture(GL_TEXTURE0);
 
+		m_shader->setVec3f("color_ambient", it->m_material.color_ambient);
+		m_shader->setVec3f("color_diffuse", it->m_material.color_diffuse);
+		m_shader->setVec3f("color_specular", it->m_material.color_specular);
+
 		GLint prevVao = 0;
 		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVao);
 		glBindVertexArray(it->m_vao);

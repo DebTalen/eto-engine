@@ -37,6 +37,9 @@ struct Material
 		TexSpecular
 	};
 	vector< pair<TextureType, SPtr<Texture>> > textures;
+	vec3 color_ambient = vec3(1);
+	vec3 color_diffuse = vec3(1);
+	vec3 color_specular = vec3(1);
 	float shinines = 32;
 };
 

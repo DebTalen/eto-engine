@@ -68,6 +68,14 @@ SPtr<Mesh> ModelLoader::processMesh(const std::string &path, const aiScene *scen
 	processMaterial(mat, aiTextureType_DIFFUSE, material, Material::TexDiffuse, dir);
 	processMaterial(mat, aiTextureType_SPECULAR, material, Material::TexSpecular, dir);
 
+	aiColor3D color;
+	mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
+	material.color_ambient = glm::vec3(color.r, color.g, color.b);
+	mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+	material.color_diffuse = glm::vec3(color.r, color.g, color.b);
+	mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
+	material.color_specular = glm::vec3(color.r, color.g, color.b);
+
 	res->setMaterial(material);
 	return res;
 }
