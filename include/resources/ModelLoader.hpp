@@ -43,6 +43,7 @@ private:
 	static SPtr<Mesh> processMesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
 
 	static void processMaterial(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
+
 };
 
 }

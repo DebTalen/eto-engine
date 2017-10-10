@@ -92,6 +92,8 @@ void ModelLoader::processMaterial(const aiMaterial *mat, aiTextureType aiType, M
 		std::replace(str.begin(), str.end(), '\\', '/');
 		if (str.at(0) != '/')
 			str.insert(0, "/");
+
+		std::cout << relPath.C_Str() << std::endl;
 		SPtr<Texture> texture = loader.load<TextureLoader>(std::string(path + str));
 		material.textures.push_back(pair<Material::TextureType, SPtr<Texture>>(type, texture));
 	}
