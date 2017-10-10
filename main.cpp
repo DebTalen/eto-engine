@@ -130,6 +130,7 @@ public:
 
 int main()
 {
+	glfwInit();
 	Window w;
 	w.create(1280, 720, "a");
 	w.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -203,12 +204,12 @@ int main()
 		return 33;
 	}
 
-	auto cacke2 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/overwatch-dva/DVA.fbx", sd); 
+ 	auto cacke2 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/overwatch-dva/DVA.fbx", sd); 
 	if (! cacke2->isLoaded()) {
 		std::cerr << cacke2->getErrorMessage() << std::endl;
 		return 33;
 	}
-
+ 
 	light->print();
 
  //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -221,8 +222,8 @@ int main()
 	      lastY = w.getSize().y / 2;
 
 	glm::vec3 lightPos(0, 10, 0);
-	glm::vec3 cacke1Pos(0, 2, 4);
-	glm::vec3 cacke2Pos(2, 0, 0);
+	glm::vec3 cacke1Pos(0, 0, -4);
+	glm::vec3 cacke2Pos(1, 0, 0);
 	glm::vec3 artasPos(-6, 0, 0);
 	glm::mat4 projection = glm::mat4(1.0f);
 
@@ -235,7 +236,7 @@ int main()
 	ws->setMat4f("projection", projection);
 
 	GLFWevent e;
-	glm::mat4  lmodel = glm::mat4(1.0);
+	float r = 0;
 	while (! w.shouldClose())
 	{
 		float currentFrame = glfwGetTime();
@@ -266,19 +267,7 @@ int main()
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 view = glm::mat4(1.0f);
-		view = camera.getView();
-
-		ls->use();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(0.2));
-		model = glm::translate(model, lightPos);
-		ls->setMat4f("model", model);
-		ls->setMat4f("view", view);
-		light->draw();
-
-		sd->use();
+/* 		sd->use();
 		sd->setMat4f("view", view);
 		sd->setVec3f("viewPos", camera.getPos());
 		sd->setVec3f("light_position", lightPos);
@@ -288,22 +277,45 @@ int main()
 		lmodel = glm::translate(lmodel, cacke2Pos);
 		lmodel = glm::rotate(lmodel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		lmodel = glm::rotate(lmodel, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lmodel = glm::rotate(lmodel, glm::radians(r), glm::vec3(0.0f, 0.0f, 1.0f));
+		r += 0.3;
 		lmodel = glm::scale(lmodel, glm::vec3(0.02f));
 		sd->setMat4f("model", lmodel);
 		cacke2->draw();
+ */
 
+		glm::mat4 model = glm::mat4(1.0f);
+		ls->use();
+		model = glm::scale(model, glm::vec3(0.2));
+		model = glm::translate(model, lightPos);
+		ls->setMat4f("model", model);
+		ls->setMat4f("view", camera.getView());
+		light->draw();
+
+		model = glm::mat4(1.0f);
 		ws->use();
-		ws->setMat4f("view", view);
-		ws->setVec3f("viewPos", camera.getPos());
+		model = glm::translate(model, cacke1Pos);
+		model = glm::scale(model, glm::vec3(0.1));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+		ws->setMat4f("model", model);
+		ws->setMat4f("view", camera.getView());
 		ws->setVec3f("light_position", lightPos);
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, cacke1Pos);
-		lmodel = glm::rotate(lmodel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		lmodel = glm::scale(lmodel, glm::vec3(0.1f));
-		ws->setMat4f("model", lmodel);
+		ws->setVec3f("veiw_position", camera.getPos());
 		cacke1->draw();
 
+		sd->use();
+		sd->setMat4f("view", camera.getView());
+		sd->setVec3f("light_position", lightPos);
+		sd->setVec3f("veiw_position", camera.getPos());
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, cacke2Pos);
+		model = glm::scale(model, glm::vec3(0.05));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+		model = glm::rotate(model, glm::radians(r), glm::vec3(0, 0, 1));
+		r += 0.3;
+		sd->setMat4f("model", model);
+		cacke2->draw();
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

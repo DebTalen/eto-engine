@@ -42,9 +42,9 @@ int Window::create(int w, int h, const std::string &title, bool fullscreen)
 	setWinHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	setWinHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	if (fullscreen)
-		m_window = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+		m_window = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), NULL);
 	else
-		m_window = glfwCreateWindow(w, h, title.c_str(), NULL, nullptr);
+		m_window = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
 	if (m_window == NULL)
 		return 0;
 	m_size.x = w;
