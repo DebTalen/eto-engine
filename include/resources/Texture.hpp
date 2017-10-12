@@ -85,7 +85,7 @@ private:
 	GLint getPrevTexBind();
 
 	// temporary, should be replaced by Renderer
-	friend class Model;
+	friend class Renderable;
 	friend class TextureLoader;
 	void setErrorMessage(const std::string &error) { m_error = error; }
 

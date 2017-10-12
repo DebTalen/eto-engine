@@ -14,8 +14,9 @@
 
 #include <resources/AssetLoader.hpp>
 #include <resources/ShaderLoader.hpp>
-#include <graphcis/core/ShaderProgram.hpp>
 #include <resources/ModelLoader.hpp>
+#include <graphcis/core/ShaderProgram.hpp>
+#include <graphcis/core/Renderable.hpp>
 
 
 using std::cout;
@@ -192,27 +193,20 @@ int main()
 	}
 
 
-	auto light = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ls);
-	if (! light->isLoaded()) {
-		std::cerr << light->getErrorMessage() << endl;
+	auto light_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ls);
+	if (! light_model->isLoaded()) {
+		std::cerr << light_model->getErrorMessage() << endl;
 		return 31;
 	}
 
-	auto cacke1 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", ws);
-	if (! cacke1->isLoaded()) {
-		std::cerr << cacke1->getErrorMessage() << std::endl;
+	auto cake_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", ws);
+	if (! cake_model->isLoaded()) {
+		std::cerr << cake_model->getErrorMessage() << std::endl;
 		return 33;
 	}
 
- 	auto cacke2 = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/overwatch-dva/DVA.fbx", sd); 
-	if (! cacke2->isLoaded()) {
-		std::cerr << cacke2->getErrorMessage() << std::endl;
-		return 33;
-	}
- 
-	light->print();
 
- //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+ 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	Camera camera(glm::vec3(0, 0, 3.0));
 	bool firstMouse = GL_TRUE;
@@ -221,12 +215,7 @@ int main()
 	float lastX = w.getSize().x / 2,
 	      lastY = w.getSize().y / 2;
 
-	glm::vec3 lightPos(0, 10, 0);
-	glm::vec3 cacke1Pos(0, 0, -4);
-	glm::vec3 cacke2Pos(1, 0, 0);
-	glm::vec3 artasPos(-6, 0, 0);
 	glm::mat4 projection = glm::mat4(1.0f);
-
 	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
 	sd->use();
 	sd->setMat4f("projection", projection);
@@ -235,8 +224,17 @@ int main()
 	ws->use();
 	ws->setMat4f("projection", projection);
 
+
+	Renderable cake(cake_model);
+	cake.scale(glm::vec3(0.1));
+	cake.translate(glm::vec3(-1, 0, -8));
+	cake.rotate(-90, glm::vec3(1, 0, 0));
+	Renderable light(light_model);
+	light.scale(glm::vec3(0.2));
+	light.translate(glm::vec3(0, 10, 0));
+
 	GLFWevent e;
-	float r = 0;
+	float r = 0.3;
 	while (! w.shouldClose())
 	{
 		float currentFrame = glfwGetTime();
@@ -267,55 +265,18 @@ int main()
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-/* 		sd->use();
-		sd->setMat4f("view", view);
-		sd->setVec3f("viewPos", camera.getPos());
-		sd->setVec3f("light_position", lightPos);
-		sd->setVec3f("light_ambient", vec3(0.5));
 
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, cacke2Pos);
-		lmodel = glm::rotate(lmodel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		lmodel = glm::rotate(lmodel, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		lmodel = glm::rotate(lmodel, glm::radians(r), glm::vec3(0.0f, 0.0f, 1.0f));
-		r += 0.3;
-		lmodel = glm::scale(lmodel, glm::vec3(0.02f));
-		sd->setMat4f("model", lmodel);
-		cacke2->draw();
- */
-
-		glm::mat4 model = glm::mat4(1.0f);
 		ls->use();
-		model = glm::scale(model, glm::vec3(0.2));
-		model = glm::translate(model, lightPos);
-		ls->setMat4f("model", model);
 		ls->setMat4f("view", camera.getView());
-		light->draw();
 
-		model = glm::mat4(1.0f);
 		ws->use();
-		model = glm::translate(model, cacke1Pos);
-		model = glm::scale(model, glm::vec3(0.1));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-		ws->setMat4f("model", model);
 		ws->setMat4f("view", camera.getView());
-		ws->setVec3f("light_position", lightPos);
+		ws->setVec3f("light_position", glm::vec3(light.getTransform()[3]));
 		ws->setVec3f("veiw_position", camera.getPos());
-		cacke1->draw();
 
-		sd->use();
-		sd->setMat4f("view", camera.getView());
-		sd->setVec3f("light_position", lightPos);
-		sd->setVec3f("veiw_position", camera.getPos());
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, cacke2Pos);
-		model = glm::scale(model, glm::vec3(0.05));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-		model = glm::rotate(model, glm::radians(r), glm::vec3(0, 0, 1));
-		r += 0.3;
-		sd->setMat4f("model", model);
-		cacke2->draw();
+		cake.rotate(r, glm::vec3(1, 1, 1));
+		cake.draw();
+		light.draw();
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
