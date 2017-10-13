@@ -17,6 +17,7 @@
 #include <resources/ModelLoader.hpp>
 #include <graphcis/core/ShaderProgram.hpp>
 #include <graphcis/core/Renderable.hpp>
+#include <graphcis/core/Light.hpp>
 
 
 using std::cout;
@@ -77,6 +78,8 @@ public:
 		_pitch = pitch;
 		updateCameraVectors();
 	}
+
+	glm::vec3 getFront() const { return _front; }
 
 	glm::mat4 getView()
 	{
@@ -161,21 +164,6 @@ int main()
 		if (! sd->isLinked() )
 			cout << sd->getErrorMessage() << endl;
 	}
-	SPtr<ShaderProgram> ls = std::make_shared<ShaderProgram>();
-	{
-		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
-		if (! vs->isCompiled())
-			cout << vs->getErrorMessage() << endl;
-
-		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/lightSource.fs", FragmentShader);
-		if (! fs->isCompiled())
-			cout << fs->getErrorMessage() << endl;
-		ls->attachShader(*vs);
-		ls->attachShader(*fs);
-		ls->link();
-		if (! ls->isLinked() )
-			cout << ls->getErrorMessage() << endl;
-	}
 	auto ws = std::make_shared<ShaderProgram>();
 	{
 		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.vs", VertexShader);
@@ -192,8 +180,7 @@ int main()
 			cout << ws->getErrorMessage() << endl;
 	}
 
-
-	auto light_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ls);
+	auto light_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ws);
 	if (! light_model->isLoaded()) {
 		std::cerr << light_model->getErrorMessage() << endl;
 		return 31;
@@ -205,10 +192,9 @@ int main()
 		return 33;
 	}
 
+ 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
- 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	Camera camera(glm::vec3(0, 0, 3.0));
+	Camera camera(glm::vec3(-3, 0, 0));
 	bool firstMouse = GL_TRUE;
 	float deltaTime = 0,
 	      lastFrame = 0;
@@ -219,22 +205,24 @@ int main()
 	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
 	sd->use();
 	sd->setMat4f("projection", projection);
-	ls->use();
-	ls->setMat4f("projection", projection);
 	ws->use();
 	ws->setMat4f("projection", projection);
 
-
 	Renderable cake(cake_model);
 	cake.scale(glm::vec3(0.1));
-	cake.translate(glm::vec3(-1, 0, -8));
-	cake.rotate(-90, glm::vec3(1, 0, 0));
+	cake.translate(glm::vec3(-1, 0, -0));
+	cake.rotate(90, glm::vec3(1, 0, 0));
 	Renderable light(light_model);
 	light.scale(glm::vec3(0.2));
 	light.translate(glm::vec3(0, 10, 0));
 
+	Light dirLight(Light::Spot, camera.getPos(), cake.getTransform()[3]);
+	dirLight.apply(ws);
+	dirLight.apply(sd);
+
 	GLFWevent e;
-	float r = 0.3;
+	float d = 0;
+	float dd = 0.05;
 	while (! w.shouldClose())
 	{
 		float currentFrame = glfwGetTime();
@@ -266,17 +254,23 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ls->use();
-		ls->setMat4f("view", camera.getView());
-
 		ws->use();
 		ws->setMat4f("view", camera.getView());
-		ws->setVec3f("light_position", glm::vec3(light.getTransform()[3]));
-		ws->setVec3f("veiw_position", camera.getPos());
+		ws->setVec3f("view_position", camera.getPos());
 
-		cake.rotate(r, glm::vec3(1, 1, 1));
 		cake.draw();
+//		cake.rotate(1, glm::vec3(1, 0, 0));
 		light.draw();
+
+		light.translate(glm::vec3(d, 0, 0));
+		if (d < -0.5)
+			dd = 0.005;
+		else if (d > 0.5) 
+			dd = -0.005;
+		d += dd;
+
+		dirLight.setPosition(light.getTransform()[3]);
+		dirLight.apply(ws);
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
