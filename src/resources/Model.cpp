@@ -79,46 +79,4 @@ std::string Model::getErrorMessage() const
 	return m_error;
 }
 
-void Model::draw()
-{
-	if (! m_loaded)
-		return;
-	m_shader->use();
-	std::string name; // very bad aproach
-	for (auto it: m_meshes)
-	{
-		uint numDiff = 1, numSpec = 1;
-		for (uint i = 0; i < it->m_material.textures.size(); ++i)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			auto t = it->m_material.textures[i];
-			switch (t.first) 
-			{
-				case Material::TexDiffuse:
-					name = {"texture_diffuse" + std::to_string(numDiff)};
-					++numDiff;
-					break;
-				case Material::TexSpecular:
-					name = {"texture_specular" + std::to_string(numDiff)};
-					++numSpec;
-					break;
-			}
-			m_shader->setInt(name.c_str(), i);
-			glBindTexture(t.second->m_tp.type, t.second->m_handle.id);
-		}
-		glActiveTexture(GL_TEXTURE0);
-
-		GLint prevVao = 0;
-		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVao);
-		glBindVertexArray(it->m_vao);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, it->m_numIndices, GL_UNSIGNED_INT, 0);
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glBindVertexArray(prevVao);
-	}
-}
 

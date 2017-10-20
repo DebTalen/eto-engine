@@ -3,36 +3,80 @@
 
 using namespace eto;
 
-//should be rewrited so to not return nullptr
-SPtr<Texture> Texture::create(const std::vector<uchar> &data, const TextureProps &tp)
+
+Texture::Texture(const TextureProps &tp)
+	: m_tp(tp), m_loaded(0), m_error("")
 {
-	if (data.size() < 1 || tp.width < 1 || tp.height < 1)
-		return nullptr;
-	size_t size = tp.width * tp.height * tp.depth;
-	size *= (tp.format == Image::Format::Tex_RGB) ? 3 : 4;
-	if (size != data.size())
-		return nullptr;
-
-	// make_shared cannot invoke private constructor :(
-	struct make_shared_enabler : public Texture {
-	       	make_shared_enabler(const std::vector<uchar> &d, const TextureProps &t)
-		       	: Texture(t, d) {}
-       	};
-	SPtr<Texture> ptr = std::make_shared<make_shared_enabler>(data, tp);		
-
-	if (ptr->isLoaded())
-		return ptr;
-	return nullptr;
+	m_dataSize = tp.width * tp.height * tp.depth;
+	m_dataSize *= (tp.format == Image::Format::Tex_RGB) ? 3 : 4;
 }
 
-Texture::Texture(const TextureProps &tp, const std::vector<uchar> &data)
-	: m_tp(tp), m_loaded(0), m_dataSize(data.size())
+Texture::~Texture()
+{
+	if (m_loaded)
+		glDeleteTextures(1, &m_handle.id);
+}
+
+void Texture::write(const std::vector<uchar> &data)
+{
+	if (data.size() != m_dataSize) {
+		m_error = "Writing error: data size is invalid";
+		return;
+	}
+	if (! m_loaded)	{
+		m_loaded = load(data);
+		return;
+	}
+
+	using namespace eto::Image;
+	const GLvoid *pData = static_cast<const GLvoid*>(data.data());
+
+	GLint pId = getPrevTexBind();
+	glBindTexture(m_tp.type, m_handle.id);
+	glGetError();
+	switch (m_tp.type)
+	{
+		case Type::Tex_1D:
+			glTexSubImage1D(m_tp.type, 0, 0, m_tp.width, m_tp.format, GL_UNSIGNED_BYTE, pData);
+			break;
+		case Type::Tex_2D:
+			glTexSubImage2D(m_tp.type, 0, 0, 0, m_tp.width, m_tp.height, m_tp.format, GL_UNSIGNED_BYTE, pData);
+			break;
+		case Type::Tex_3D:
+			glTexSubImage3D(m_tp.type, 0, 0, 0, 0, m_tp.width, m_tp.height, m_tp.depth, m_tp.format, GL_UNSIGNED_BYTE, pData);
+			break;
+	}
+	int err;
+	if ((err = glGetError()) != GL_NO_ERROR) {
+		m_error = "Error writing data to the texture: " + std::to_string(err);
+		m_loaded = false;
+	}
+	glBindTexture(m_tp.type, pId);
+}
+
+void Texture::read(std::vector<uchar> &data)
+{
+	if (m_loaded)
+	{
+		GLint pId = getPrevTexBind();
+		glBindTexture(m_tp.type, m_handle.id);
+		data.resize(m_dataSize);
+		glGetTexImage(m_tp.type, 0, m_tp.format, GL_UNSIGNED_BYTE, static_cast<GLvoid*>(data.data()));
+		glBindTexture(m_tp.type, pId);
+	}
+	else
+		m_error = "Error: texture is not loaded";
+}
+
+int Texture::load(const std::vector<uchar> &data)
 {
 	using namespace eto::Image;
 
+	GLint pId = getPrevTexBind();
 	glGenTextures(1, &m_handle.id);
 	glBindTexture(m_tp.type, m_handle.id);
 
+	glGetError(); 
 	const GLvoid *pData = static_cast<const GLvoid*>(data.data());
 	switch (m_tp.type)
 	{
@@ -47,42 +91,24 @@ Texture::Texture(const TextureProps &tp, const std::vector<uchar> &data)
 	}
 	if (m_tp.isMipmap)
 		glGenerateMipmap(m_tp.type);
-	m_loaded = (glGetError() == GL_NO_ERROR) ? true : false;
-	glBindTexture(m_tp.type, 0);
-}
+	glBindTexture(m_tp.type, pId);
 
-Texture::~Texture()
-{
-	if (m_loaded)
-		glDeleteTextures(1, &m_handle.id);
-}
-
-void Texture::read(std::vector<uchar> &data)
-{
-	data.resize(m_dataSize);
-	GLvoid *pData = static_cast<GLvoid*>(data.data());
-	glGetTexImage(m_tp.type, 0, m_tp.format, GL_UNSIGNED_BYTE, pData);
-}
-
-// should also add subrectangle region to change
-int Texture::write(const std::vector<uchar> &data)
-{
-	if (data.size() != m_dataSize)  // size of the new data should be equal to width * height * channels
-		return 0;
-	using namespace eto::Image;
-	const GLvoid *pData = static_cast<const GLvoid*>(data.data());
-
-	switch (m_tp.type)
-	{
-		case Type::Tex_1D:
-			glTexSubImage1D(m_tp.type, 0, 0, m_tp.width, m_tp.format, GL_UNSIGNED_BYTE, pData);
-			break;
-		case Type::Tex_2D:
-			glTexSubImage2D(m_tp.type, 0, 0, 0, m_tp.width, m_tp.height, m_tp.format, GL_UNSIGNED_BYTE, pData);
-			break;
-		case Type::Tex_3D:
-			glTexSubImage3D(m_tp.type, 0, 0, 0, 0, m_tp.width, m_tp.height, m_tp.depth, m_tp.format, GL_UNSIGNED_BYTE, pData);
-			break;
+	int err;
+	if ( (err = glGetError()) != GL_NO_ERROR) {
+		m_error = "Error loading data to the texture: " + std::to_string(err);
+		return false;
 	}
-	return 1;
+	return true;
+}
+
+GLint Texture::getPrevTexBind() 
+{
+	GLint pId = 0;
+	if (m_tp.type == Image::Tex_1D)
+		glGetIntegerv(GL_TEXTURE_BINDING_1D, &pId);
+	else if (m_tp.type == Image::Tex_2D)
+		glGetIntegerv(GL_TEXTURE_BINDING_2D, &pId);
+	else 
+		glGetIntegerv(GL_TEXTURE_BINDING_3D, &pId);
+	return pId;
 }

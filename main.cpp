@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -12,121 +11,71 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <core/Input.hpp>
 #include <resources/AssetLoader.hpp>
 #include <resources/ShaderLoader.hpp>
-#include <graphcis/core/ShaderProgram.hpp>
 #include <resources/ModelLoader.hpp>
+#include <graphcis/core/ShaderProgram.hpp>
+#include <graphcis/core/Renderable.hpp>
+#include <graphcis/core/Light.hpp>
+#include <graphcis/core/Camera.hpp>
 
 
 using std::cout;
 using std::endl;
 using namespace eto;
-//template <typename T>
-//using SPtr = std::shared_ptr<T>;
 
 using glm::vec3;
-// default camera values
-const float YAW   = -90.0f,
-            PITCH = 0.0f,
-	    SPEED = 13.0f,
-	    SENS  = 0.07f,
-	    ZOOM  = 45.0f;
 
-class Camera
+ enum CameraMovement {
+	 FORWARD  = input::Key::W,
+	 BACKWARD = input::Key::S,
+	 UPWARD   = input::Key::Space,
+	 DOWNWARD = input::Key::C,
+	 RIGHT    = input::Key::D,
+	 LEFT 	 = input::Key::A
+ };
+void processKeyboard(CameraMovement direction, Camera &c)
 {
-private:
-	vec3 _pos, _front, _up, _right, _worldUp;
-	float _yaw, _pitch;
-	float _movSpeed, _mouseSens, _zoom;
-	void updateCameraVectors()
+	float velocity = 0.15;
+	switch (direction)
 	{
-		_front = glm::normalize( vec3 { 
-				cos(glm::radians(_yaw)) * cos(glm::radians(_pitch)),
-				sin(glm::radians(_pitch)),
-				sin(glm::radians(_yaw)) * cos(glm::radians(_pitch))
-				});
-		_right = glm::normalize(glm::cross(_front, _worldUp));
-		_up    = glm::normalize(glm::cross(_right, _front));
+		case FORWARD:
+			c.move(c.getTarget() * velocity); break;
+		case BACKWARD:
+			c.move(-(c.getTarget() * velocity)); break;
+		case LEFT:
+			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0,-1, 0))) * velocity); break;
+		case RIGHT:
+			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0, 1, 0))) * velocity); break;
+		case UPWARD:
+			c.move(vec3(0, 1, 0) * velocity); break;
+		case DOWNWARD:
+			c.move(vec3(0,-1, 0) * velocity); break;
 	}
-public:
-	explicit Camera(vec3 position = vec3(0, 0, 0), vec3 up = vec3(0, 1, 0), float yaw = YAW, float pitch = PITCH)
-		: _front(vec3(0, 0, -1.0)), 
-		_movSpeed(SPEED),
-		_mouseSens(SENS),
-		_zoom(ZOOM) 
-	{
-		_pos = position;
-		_worldUp = up;
-		_yaw = yaw;
-		_pitch = pitch;
-		updateCameraVectors();
-	}
-
-	Camera(float posX, float posY, float posZ,
-	       float upX,  float upY,  float upZ,
-	       float yaw,  float pitch)
-		: _front(vec3(0, 0, -1.0)),
-		_movSpeed(SPEED),
-		_mouseSens(SENS),
-		_zoom(ZOOM)
-	{
-		_pos = vec3(posX, posY, posZ);
-		_worldUp = vec3(upX, upY, upZ);
-		_yaw = yaw;
-		_pitch = pitch;
-		updateCameraVectors();
-	}
-
-	glm::mat4 getView()
-	{
-		return glm::lookAt(_pos, _pos + _front, _up);
-	}
-
-	glm::vec3 getPos() const { return _pos; }
-
-	enum CameraMovement {
-		FORWARD  = Input::Key::W,
-		BACKWARD = Input::Key::S,
-		UPWARD   = Input::Key::Space,
-		DOWNWARD = Input::Key::C,
-		RIGHT    = Input::Key::D,
-		LEFT 	 = Input::Key::A
-	};
-	void processKeyboard(CameraMovement direction, float deltaTime)
-	{
-		float velocity = _movSpeed * deltaTime;
-		switch (direction)
-		{
-			case FORWARD:
-				_pos += _front * velocity; break;
-			case BACKWARD:
-				_pos -= _front * velocity; break;
-			case LEFT:
-				_pos -= _right * velocity; break;
-			case RIGHT:
-				_pos += _right * velocity; break;
-			case UPWARD:
-				_pos += _up * velocity; break;
-			case DOWNWARD:
-				_pos -= _up * velocity; break;
-		}
 	//	_pos.y = 0; for fixed floor
-	}
+}
 
-	void processMouse(float xOffset, float yOffset)
+bool firstMouse = true;
+float lastX, lastY;
+void processMouse(float x, float y, Camera &c)
+{
+	if (firstMouse)
 	{
-		xOffset *= _mouseSens;
-		yOffset *= _mouseSens;
-		_yaw   += xOffset;
-		_pitch += yOffset;
-
-		if(_pitch > 89.0f)
-			_pitch = 89.0f;
-		if(_pitch < -89.0f)
-			_pitch = -89.0f;
-		updateCameraVectors();
+		lastX = x;
+		lastY = y;
+		firstMouse = 0;
 	}
-};
+	float xOffset = x - lastX;
+	float yOffset = lastY - y;
+	lastX = x;
+	lastY = y;
+
+	float sensity = 0.05;
+	xOffset *= sensity;
+	yOffset *= sensity;
+	c.rotate({xOffset, yOffset, 0});
+}
 
 int main()
 {
@@ -135,6 +84,8 @@ int main()
 	w.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	w.setPos({0, 100});
 	glfwMakeContextCurrent(w.getRawPointer());
+
+	Input::getInstance().setWindow(w);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -159,21 +110,6 @@ int main()
 		if (! sd->isLinked() )
 			cout << sd->getErrorMessage() << endl;
 	}
-	SPtr<ShaderProgram> ls = std::make_shared<ShaderProgram>();
-	{
-		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
-		if (! vs->isCompiled())
-			cout << vs->getErrorMessage() << endl;
-
-		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/lightSource.fs", FragmentShader);
-		if (! fs->isCompiled())
-			cout << fs->getErrorMessage() << endl;
-		ls->attachShader(*vs);
-		ls->attachShader(*fs);
-		ls->link();
-		if (! ls->isLinked() )
-			cout << ls->getErrorMessage() << endl;
-	}
 	auto ws = std::make_shared<ShaderProgram>();
 	{
 		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.vs", VertexShader);
@@ -190,166 +126,69 @@ int main()
 			cout << ws->getErrorMessage() << endl;
 	}
 
-
-	auto light = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ls);
-	if (! light->isLoaded()) {
-		std::cerr << light->getErrorMessage() << endl;
-		return 31;
-	}
- 
-	auto mmap = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/awp_india/awp_india.obj", sd);
-	if (! mmap->isLoaded()) {
-		std::cerr << mmap->getErrorMessage() << endl;
-		return 31;
-	}
-	
-	auto artas = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Lich_King/Lich_King.obj", sd);
-	if (! artas->isLoaded()) {
-		std::cerr << artas->getErrorMessage() << endl;
+	auto light_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ws);
+	if (! light_model->isLoaded()) {
+		std::cerr << light_model->getErrorMessage() << endl;
 		return 31;
 	}
 
-	auto dragon = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Dragon/Dargon posing.obj", sd);
-	if (! dragon->isLoaded()) {
-		std::cerr << dragon->getErrorMessage() << endl;
-		return 31;
+	auto cake_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", ws);
+	if (! cake_model->isLoaded()) {
+		std::cerr << cake_model->getErrorMessage() << std::endl;
+		return 33;
 	}
 
-	auto librarian = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Librarian/Librarian.obj", ws);
-	if (! librarian->isLoaded()) {
-		cout << librarian->getErrorMessage() << endl;
-		return 32;
-	}
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	auto leviathan = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Leviathan/leviathan.obj", ws);
-	if (! leviathan->isLoaded()) {
-		cout << leviathan->getErrorMessage() << endl;
-		return 32;
-	}
-	auto toilet = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Toilet/Toilet.obj", ws);
-	if (! toilet->isLoaded()) {
-		cout << toilet->getErrorMessage() << endl;
-		return 32;
-	}
-	mmap->print();
+	Camera camera(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 1));
 
- //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	Renderable cake(cake_model);
+	cake.scale(glm::vec3(0.1));
+	cake.translate(glm::vec3(-0, 0, -0));
+	cake.rotate(90, glm::vec3(1, 0, 0));
+	Renderable light(light_model);
+	light.scale(glm::vec3(0.2));
+	light.translate(glm::vec3(0, 0, 0));
 
-	Camera camera(glm::vec3(0, 0, 3.0));
-	bool firstMouse = GL_TRUE;
-	float deltaTime = 0,
-	      lastFrame = 0;
-	float lastX = w.getSize().x / 2,
-	      lastY = w.getSize().y / 2;
+	Light dirLight(Light::Directional, vec3(0), vec3(0, -2, 0));
+	dirLight.apply(ws);
+	dirLight.apply(sd);
 
-	glm::vec3 mapPos(0, 0, -10);
-	glm::vec3 lightPos(0, 10, 0);
-	glm::vec3 artasPos(-6, -2, 0);
-	glm::vec3 dragonPos(5, 0, 0);
-	glm::vec3 libPos(0, 0, -2);
-	glm::vec3 levPos(0, -2, 4);
-	glm::vec3 toiletPos(0, 0, 0);
-	glm::mat4 projection = glm::mat4(1.0f);
+	float d = 0;
+	float dd = 0.05;
+	Input &input = Input::getInstance();
 
-	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
-	sd->use();
-	sd->setMat4f("projection", projection);
-	ls->use();
-	ls->setMat4f("projection", projection);
-	ws->use();
-	ws->setMat4f("projection", projection);
+	input.addCallback(GLFWevent::Type::CursorPosition, [&](const GLFWevent &e) {
+			processMouse(e.data.cursorPos.x, e.data.cursorPos.y, camera);
+			});
 
-	GLFWevent e;
+	input.addCallback(GLFWevent::Key, [&](const GLFWevent &e) {
+			processKeyboard(static_cast<CameraMovement>(e.data.key.key), camera);
+			});
+
 	while (! w.shouldClose())
 	{
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 		w.pollEvents();
-		while (w.getEvent(e) ){
-			if (e.type == GLFWevent::Type::WindowClose ||
-					(e.type == GLFWevent::Type::Key && e.key.key == Input::Key::Escape))
-				w.setShouldClose(1);
-			else if (e.type == GLFWevent::Key)
-				camera.processKeyboard(static_cast<Camera::CameraMovement>(e.key.key), deltaTime);
-			if (e.type == GLFWevent::CursorPosition)
-			{
-				if (firstMouse)
-				{
-					lastX = e.cursorPos.x;
-					lastY = e.cursorPos.y;
-					firstMouse = GL_FALSE;
-				}
-				float xOffset = e.cursorPos.x - lastX,
-				      yOffset = lastY - e.cursorPos.y;
-				lastX = e.cursorPos.x;
-				lastY = e.cursorPos.y;
-				camera.processMouse(xOffset, yOffset);
-			}
-		}
+		if (input.isKeyRelese(input::Escape))
+			w.setShouldClose(true);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 view = glm::mat4(1.0f);
-		view = camera.getView();
-
-		ls->use();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(0.2));
-		model = glm::translate(model, lightPos);
-		ls->setMat4f("model", model);
-		ls->setMat4f("view", view);
-		light->draw();
-
-		sd->use();
-		sd->setMat4f("view", view);
-		sd->setVec3f("viewPos", camera.getPos());
-		sd->setVec3f("light_position", lightPos);
-		sd->setVec3f("light_ambient", vec3(0.5));
-
-		glm::mat4 lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, mapPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		sd->setMat4f("model", lmodel);
-		mmap->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, artasPos);
-		lmodel = glm::scale(lmodel, glm::vec3(4.0f));
-		sd->setMat4f("model", lmodel);
-		artas->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, dragonPos);
-		lmodel = glm::rotate(lmodel, glm::radians(200.0f), glm::vec3(0, 1, 0));
-		lmodel = glm::scale(lmodel, glm::vec3(3.0f));
-		sd->setMat4f("model", lmodel);
-		dragon->draw();
-
 		ws->use();
-		ws->setMat4f("view", view);
-		ws->setVec3f("viewPos", camera.getPos());
-		ws->setVec3f("light_position", lightPos);
+		ws->setMat4f("view", camera.getViewMatrix());
+		ws->setVec3f("view_position", camera.getPos());
 
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, libPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		ws->setMat4f("model", lmodel);
-		librarian->draw();
+		cake.draw();
+		//		cake.rotate(1, glm::vec3(1, 0, 0));
+		light.draw();
 
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, levPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		lmodel = glm::rotate(lmodel, glm::radians(180.0f), glm::vec3(0, 1, 0));
-		ws->setMat4f("model", lmodel);
-		leviathan->draw();
-
-		lmodel = glm::mat4(1.0f);
-		lmodel = glm::translate(lmodel, toiletPos);
-		lmodel = glm::scale(lmodel, glm::vec3(0.02));
-		ws->setMat4f("model", lmodel);
-		toilet->draw();
+		light.translate(glm::vec3(d, 0, 0));
+		if (d < -0.5)
+			dd = 0.005;
+		else if (d > 0.5) 
+			dd = -0.005;
+		d += dd;
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

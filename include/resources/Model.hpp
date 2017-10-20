@@ -37,6 +37,9 @@ struct Material
 		TexSpecular
 	};
 	vector< pair<TextureType, SPtr<Texture>> > textures;
+	vec3 color_ambient = vec3(1);
+	vec3 color_diffuse = vec3(1);
+	vec3 color_specular = vec3(1);
 	float shinines = 32;
 };
 
@@ -78,7 +81,7 @@ public:
 	Mesh &operator= (const Mesh &rhs) = delete;
 
 	// Temporary. Should be replaced by Renderer
-	friend class Model;
+	friend class Renderable;
 
 	GLuint 	m_vao;
 	GLuint 	m_vbo;
@@ -116,29 +119,6 @@ public:
 
 	void setTranform(const glm::mat4 MtW) { m_modelTransform = MtW; }
 
-	/** Temorary helper functions */
-	void draw();
-
-	void print(int count = 0)
-	{
-		using std::cout;
-		using std::endl;
-		for (int i = 0; i < count; ++i)
-			cout << "\t";
-		cout << "---------------------" << endl;
-		for (int i = 0; i < count; ++i)
-			cout << "\t";
-		cout << "Model №" << getId() << endl;
-		for (int i = 0; i < count; ++i)
-			cout << "\t";
-		cout << "Meshes: " << m_meshes.size() << endl;
-		for (auto it : m_meshes )
-		{
-			for (int i = 0; i < count; ++i)
-				cout << "\t";
-			cout << "Vertices: " << it->m_numVertices << "\tIndices: " << it->m_numIndices << endl;
-		}
-	}
 public:
 	friend class ModelLoader;
 	void setErrorMessage(const std::string error) { m_error = error; }

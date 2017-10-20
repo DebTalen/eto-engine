@@ -31,6 +31,7 @@ public:
 	 *  @param  path Path to the asset
 	 *  @param  TLoader Type of the loader to load asset
 	 *  @param  args... Additional arguments to pass to TLoader::load
+	 *  @return Shared poiner to the loaded asset.
 	 */
 	template <typename TLoader, typename... Args>
 	auto load(const std::string &path, Args... args)
@@ -55,12 +56,38 @@ public:
 		return pRes;
 	}
 
-	/* template <typename TLoader, typename... Args>
+
+	/**
+	 *  @brief  Reloads asset using specidied loader
+	 *
+	 *  If asset was loaded it will be forcefully reloaded.
+	 *  @see    AssetLoader::load
+	 *  @param  path Path to the asset
+	 *  @param  args... Additional arguments that Loader may need.
+	 *  @return Shared pointer to the (re)loaded asset.
+	 */
+	template <typename TLoader, typename... Args>
 	auto reload(const std::string &path, Args... args)
 	{
-	}
- */	static AssetLoader &getInstance();
+		auto pRes = TLoader::load(path, args...);
 
+		std::size_t h = std::hash<std::string>{}(path);
+		auto iter = m_loaded.find(h);
+
+		if (iter != m_loaded.end())
+			iter->second = std::static_pointer_cast<Resource>(pRes);
+		else
+			m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
+		return pRes;
+	}
+
+
+	/**
+	 *  Clears weak pointers to previously loaded assets
+	 void clear();
+	 */
+	 
+	static AssetLoader &getInstance();
 private:
 	AssetLoader();
 
