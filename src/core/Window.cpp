@@ -126,28 +126,12 @@ Window::WinSize Window::getSize() const
 	return m_size;
 }
 
-void Window::addEvent(GLFWevent &event)
-{
-	if (m_eventQueue.size() > 100) // change constant value to variable
-		m_eventQueue.pop();
-	m_eventQueue.push(event);
-}
-
-bool Window::getEvent(GLFWevent &event) 
-{
-	if (m_eventQueue.empty())
-		return 0;
-	event = m_eventQueue.front();
-	m_eventQueue.pop();
-	return 1;
-}
-
 void Window::prepareCallbacks() 
 {
-	glfwSetWindowUserPointer(m_window, this);
+//	glfwSetWindowUserPointer(m_window, this);
 
 	// some dark magic from https://stackoverflow.com/questions/7676971/
-	#define genericCallback(functionName)\
+	/*#define genericCallback(functionName)\
 		[](GLFWwindow *window, auto... args) {\
 			auto ptr = static_cast<Window*>(glfwGetWindowUserPointer(window));\
 			ptr->functionName(args...);\
@@ -155,35 +139,5 @@ void Window::prepareCallbacks()
 
 	glfwSetKeyCallback(m_window, genericCallback(onKey));
 	glfwSetMouseButtonCallback(m_window, genericCallback(onMouseButton));
-	glfwSetCursorPosCallback(m_window, genericCallback(onCursorPosition));
-}
-
-void Window::onKey(int key, int scancode, int action, int mods)
-{
-	GLFWevent event;
-	event.type = GLFWevent::Type::Key;
-	event.key.key = static_cast<Input::Key>(key);
-	event.key.action = static_cast<Input::Action>(action);
-	event.key.modifier = mods;
-	event.key.scancode = scancode;
-	addEvent(event);
-}
-
-void Window::onMouseButton(int button, int action, int mods)
-{
-	GLFWevent event;
-	event.type = GLFWevent::Type::MouseButton;
-	event.mouseButton.button = static_cast<Input::MouseButton>(button);
-	event.mouseButton.action = static_cast<Input::Action>(action);
-	event.mouseButton.modifier = mods;
-	addEvent(event);
-}
-
-void Window::onCursorPosition(double x, double y)
-{
-	GLFWevent event;
-	event.type = GLFWevent::Type::CursorPosition;
-	event.cursorPos.x = x;
-	event.cursorPos.y = y;
-	addEvent(event);
+	glfwSetCursorPosCallback(m_window, genericCallback(onCursorPosition)); */
 }

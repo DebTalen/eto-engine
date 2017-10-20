@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -12,134 +11,81 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <core/Input.hpp>
 #include <resources/AssetLoader.hpp>
 #include <resources/ShaderLoader.hpp>
 #include <resources/ModelLoader.hpp>
 #include <graphcis/core/ShaderProgram.hpp>
 #include <graphcis/core/Renderable.hpp>
 #include <graphcis/core/Light.hpp>
+#include <graphcis/core/Camera.hpp>
 
 
 using std::cout;
 using std::endl;
 using namespace eto;
-//template <typename T>
-//using SPtr = std::shared_ptr<T>;
 
 using glm::vec3;
-// default camera values
-const float YAW   = -90.0f,
-            PITCH = 0.0f,
-	    SPEED = 13.0f,
-	    SENS  = 0.07f,
-	    ZOOM  = 45.0f;
 
-class Camera
+ enum CameraMovement {
+	 FORWARD  = input::Key::W,
+	 BACKWARD = input::Key::S,
+	 UPWARD   = input::Key::Space,
+	 DOWNWARD = input::Key::C,
+	 RIGHT    = input::Key::D,
+	 LEFT 	 = input::Key::A
+ };
+void processKeyboard(CameraMovement direction, Camera &c)
 {
-private:
-	vec3 _pos, _front, _up, _right, _worldUp;
-	float _yaw, _pitch;
-	float _movSpeed, _mouseSens, _zoom;
-	void updateCameraVectors()
+	float velocity = 0.15;
+	switch (direction)
 	{
-		_front = glm::normalize( vec3 { 
-				cos(glm::radians(_yaw)) * cos(glm::radians(_pitch)),
-				sin(glm::radians(_pitch)),
-				sin(glm::radians(_yaw)) * cos(glm::radians(_pitch))
-				});
-		_right = glm::normalize(glm::cross(_front, _worldUp));
-		_up    = glm::normalize(glm::cross(_right, _front));
+		case FORWARD:
+			c.move(c.getTarget() * velocity); break;
+		case BACKWARD:
+			c.move(-(c.getTarget() * velocity)); break;
+		case LEFT:
+			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0,-1, 0))) * velocity); break;
+		case RIGHT:
+			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0, 1, 0))) * velocity); break;
+		case UPWARD:
+			c.move(vec3(0, 1, 0) * velocity); break;
+		case DOWNWARD:
+			c.move(vec3(0,-1, 0) * velocity); break;
 	}
-public:
-	explicit Camera(vec3 position = vec3(0, 0, 0), vec3 up = vec3(0, 1, 0), float yaw = YAW, float pitch = PITCH)
-		: _front(vec3(0, 0, -1.0)), 
-		_movSpeed(SPEED),
-		_mouseSens(SENS),
-		_zoom(ZOOM) 
-	{
-		_pos = position;
-		_worldUp = up;
-		_yaw = yaw;
-		_pitch = pitch;
-		updateCameraVectors();
-	}
-
-	Camera(float posX, float posY, float posZ,
-	       float upX,  float upY,  float upZ,
-	       float yaw,  float pitch)
-		: _front(vec3(0, 0, -1.0)),
-		_movSpeed(SPEED),
-		_mouseSens(SENS),
-		_zoom(ZOOM)
-	{
-		_pos = vec3(posX, posY, posZ);
-		_worldUp = vec3(upX, upY, upZ);
-		_yaw = yaw;
-		_pitch = pitch;
-		updateCameraVectors();
-	}
-
-	glm::vec3 getFront() const { return _front; }
-
-	glm::mat4 getView()
-	{
-		return glm::lookAt(_pos, _pos + _front, _up);
-	}
-
-	glm::vec3 getPos() const { return _pos; }
-
-	enum CameraMovement {
-		FORWARD  = Input::Key::W,
-		BACKWARD = Input::Key::S,
-		UPWARD   = Input::Key::Space,
-		DOWNWARD = Input::Key::C,
-		RIGHT    = Input::Key::D,
-		LEFT 	 = Input::Key::A
-	};
-	void processKeyboard(CameraMovement direction, float deltaTime)
-	{
-		float velocity = _movSpeed * deltaTime;
-		switch (direction)
-		{
-			case FORWARD:
-				_pos += _front * velocity; break;
-			case BACKWARD:
-				_pos -= _front * velocity; break;
-			case LEFT:
-				_pos -= _right * velocity; break;
-			case RIGHT:
-				_pos += _right * velocity; break;
-			case UPWARD:
-				_pos += _up * velocity; break;
-			case DOWNWARD:
-				_pos -= _up * velocity; break;
-		}
 	//	_pos.y = 0; for fixed floor
-	}
+}
 
-	void processMouse(float xOffset, float yOffset)
+bool firstMouse = true;
+float lastX, lastY;
+void processMouse(float x, float y, Camera &c)
+{
+	if (firstMouse)
 	{
-		xOffset *= _mouseSens;
-		yOffset *= _mouseSens;
-		_yaw   += xOffset;
-		_pitch += yOffset;
-
-		if(_pitch > 89.0f)
-			_pitch = 89.0f;
-		if(_pitch < -89.0f)
-			_pitch = -89.0f;
-		updateCameraVectors();
+		lastX = x;
+		lastY = y;
+		firstMouse = 0;
 	}
-};
+	float xOffset = x - lastX;
+	float yOffset = lastY - y;
+	lastX = x;
+	lastY = y;
+
+	float sensity = 0.05;
+	xOffset *= sensity;
+	yOffset *= sensity;
+	c.rotate({xOffset, yOffset, 0});
+}
 
 int main()
 {
-	glfwInit();
 	Window w;
 	w.create(1280, 720, "a");
 	w.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	w.setPos({0, 100});
 	glfwMakeContextCurrent(w.getRawPointer());
+
+	Input::getInstance().setWindow(w);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -192,74 +138,49 @@ int main()
 		return 33;
 	}
 
- 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	Camera camera(glm::vec3(-3, 0, 0));
-	bool firstMouse = GL_TRUE;
-	float deltaTime = 0,
-	      lastFrame = 0;
-	float lastX = w.getSize().x / 2,
-	      lastY = w.getSize().y / 2;
-
-	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), (float)w.getSize().x / (float)w.getSize().y, 0.1f, 20000.0f);
-	sd->use();
-	sd->setMat4f("projection", projection);
-	ws->use();
-	ws->setMat4f("projection", projection);
+	Camera camera(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 1));
 
 	Renderable cake(cake_model);
 	cake.scale(glm::vec3(0.1));
-	cake.translate(glm::vec3(-1, 0, -0));
+	cake.translate(glm::vec3(-0, 0, -0));
 	cake.rotate(90, glm::vec3(1, 0, 0));
 	Renderable light(light_model);
 	light.scale(glm::vec3(0.2));
-	light.translate(glm::vec3(0, 10, 0));
+	light.translate(glm::vec3(0, 0, 0));
 
-	Light dirLight(Light::Spot, camera.getPos(), cake.getTransform()[3]);
+	Light dirLight(Light::Directional, vec3(0), vec3(0, -2, 0));
 	dirLight.apply(ws);
 	dirLight.apply(sd);
 
-	GLFWevent e;
 	float d = 0;
 	float dd = 0.05;
+	Input &input = Input::getInstance();
+
+	input.addCallback(GLFWevent::Type::CursorPosition, [&](const GLFWevent &e) {
+			processMouse(e.data.cursorPos.x, e.data.cursorPos.y, camera);
+			});
+
+	input.addCallback(GLFWevent::Key, [&](const GLFWevent &e) {
+			processKeyboard(static_cast<CameraMovement>(e.data.key.key), camera);
+			});
+
 	while (! w.shouldClose())
 	{
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 		w.pollEvents();
-		while (w.getEvent(e) ){
-			if (e.type == GLFWevent::Type::WindowClose ||
-					(e.type == GLFWevent::Type::Key && e.key.key == Input::Key::Escape))
-				w.setShouldClose(1);
-			else if (e.type == GLFWevent::Key)
-				camera.processKeyboard(static_cast<Camera::CameraMovement>(e.key.key), deltaTime);
-			if (e.type == GLFWevent::CursorPosition)
-			{
-				if (firstMouse)
-				{
-					lastX = e.cursorPos.x;
-					lastY = e.cursorPos.y;
-					firstMouse = GL_FALSE;
-				}
-				float xOffset = e.cursorPos.x - lastX,
-				      yOffset = lastY - e.cursorPos.y;
-				lastX = e.cursorPos.x;
-				lastY = e.cursorPos.y;
-				camera.processMouse(xOffset, yOffset);
-			}
-		}
+		if (input.isKeyRelese(input::Escape))
+			w.setShouldClose(true);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ws->use();
-		ws->setMat4f("view", camera.getView());
+		ws->setMat4f("view", camera.getViewMatrix());
 		ws->setVec3f("view_position", camera.getPos());
 
 		cake.draw();
-//		cake.rotate(1, glm::vec3(1, 0, 0));
+		//		cake.rotate(1, glm::vec3(1, 0, 0));
 		light.draw();
 
 		light.translate(glm::vec3(d, 0, 0));
@@ -268,9 +189,6 @@ int main()
 		else if (d > 0.5) 
 			dd = -0.005;
 		d += dd;
-
-		dirLight.setPosition(light.getTransform()[3]);
-		dirLight.apply(ws);
 
 		w.swapBuffers();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

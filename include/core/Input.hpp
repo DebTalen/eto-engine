@@ -2,167 +2,106 @@
 #define ETO_INPUT_HPP
 
 #include <GLFW/glfw3.h>
+#include <core/Window.hpp>
+#include <core/GLFWevent.hpp>
+#include <core/Assert.hpp>
+#include <functional>
+#include <vector>
+#include <map>
+
+using eto::GLFWevent;
 
 namespace eto
 {
-	namespace Input
-       	{
-		enum Modifier {
-			Shift = GLFW_MOD_SHIFT,
-			Control = GLFW_MOD_CONTROL,
-			Alt = GLFW_MOD_ALT,
-			Super = GLFW_MOD_SUPER
-		};
 
-		enum Action {
-			Press,
-			Release,
-			Repeat
-		};
-		enum MouseButton
-		{
-			Button1 = GLFW_MOUSE_BUTTON_1,
-			Button2,
-			Button3,
-			Button4,
-			Button5,
-			Button6,
-			Button7,
-			Button8,
-			ButtonLast = Button8,
+/**
+ *  @brief  Hander for the raw input data
+ */
+class Input 
+{
+public:
+	typedef std::function<void(const GLFWevent&)> CallbackType;
 
-			ButtonLeft = Button1,
-			ButtonRight = Button2,
-			ButtonMiddle = Button3
-		};
+	/** Returns single instance of the Input class */
+	static Input &getInstance();
 
-		// well...
-		enum Key
-		{
-			Unknown = GLFW_KEY_UNKNOWN,
-			Space = GLFW_KEY_SPACE,
-			Apostrophe = GLFW_KEY_APOSTROPHE,
-			Comma = GLFW_KEY_COMMA,
-			Minus,
-			Period,
-			Slash,
-			Number0,
-			Number1,
-			Number2,
-			Number3,
-			Number4,
-			Number5,
-			Number6,
-			Number7,
-			Number8,
-			Number9,
-			Semicolon,
-			Equal,
-			A = GLFW_KEY_A,
-			B,
-			C,
-			D,
-			E,
-			F,
-			G,
-			H,
-			I,
-			J,
-			K,
-			L,
-			M,
-			N,
-			O,
-			P,
-			Q,
-			R,
-			S,
-			T,
-			U,
-			V,
-			W,
-			X,
-			Y,
-			Z,
-			LeftBracket,
-			Backslash,
-			RightBracket,
-			GraveAccent = GLFW_KEY_GRAVE_ACCENT,
-			World1 = GLFW_KEY_WORLD_1,
-			World2,
-			Escape = GLFW_KEY_ESCAPE,
-			Enter,
-			Tab,
-			Backspace,
-			Insert,
-			Delete,
-			Right,
-			Left,
-			Down,
-			Up,
-			PageUp,
-			PageDown,
-			Home,
-			End,
-			CapsLock,
-			ScrollLock,
-			NumLock,
-			PrintScreen,
-			Pause,
-			F1 = GLFW_KEY_F1,
-			F2,
-			F3,
-			F4,
-			F5,
-			F6,
-			F7,
-			F8,
-			F9,
-			F10,
-			F11,
-			F12,
-			F13,
-			F14,
-			F15,
-			F16,
-			F17,
-			F18,
-			F19,
-			F20,
-			F21,
-			F22,
-			F23,
-			F24,
-			F25,
-			Keypad0 = GLFW_KEY_KP_0,
-			Keypad1,
-			Keypad2,
-			Keypad3,
-			Keypad4,
-			Keypad5,
-			Keypad6,
-			Keypad7,
-			Keypad8,
-			Keypad9,
-			KeypadDecimal,
-			KeypadDivide,
-			KeypadMultiply,
-			KeypadSubtract,
-			KeypadAdd,
-			KeypadEnter,
-			KeypadEqual,
-			LeftShift = GLFW_KEY_LEFT_SHIFT,
-			LeftControl,
-			LeftAlt,
-			LeftSuper,
-			RightShift,
-			RightControl,
-			RightAlt,
-			RightSuper,
-			Menu,
-			Last = Menu
-		};
-	}
+	/**
+	 *  @brief  Configures callbacks from specified window
+	 *
+	 *  You should always call this function before using the Input
+	 */
+	void setWindow(const Window &w);
+
+	/**
+	 *  @brief  Adds a callback function to the specified event type
+	 *
+	 *  The specified callback will be called whenever the specified event type will pop up.
+	 *  The callback function must take const reference to the GLFWevent and return void.
+	 *  Use lambda to wrap the needed function.
+	 *  @param  type Event type to subscribe 
+	 *  @param  callback The callback function
+	 */
+	void addCallback(GLFWevent::Type type, CallbackType callback);
+
+	/**
+	 *  @brief  Removes the specified callback
+	 *
+	 *  @param  type Event type to unsubscribe 
+	 *  @param  callback The callback function
+	 */
+	void removeCallback(GLFWevent::Type type, CallbackType callback);
+
+	/**
+	 *  @brief  Indicates if the key was pressed
+	 *
+	 *  @param  key The key code
+	 *  @return True if was pressd and false if not
+	 */
+	bool isKeyPress(input::Key key) const;
+
+	/**
+	 *  @brief  Indicates if the key was released
+	 *
+	 *  @param  key The key code
+	 *  @return True if was released and false if not
+	 */
+	bool isKeyRelese(input::Key key) const;
+
+	/**
+	 *  @brief  Indicates if the key was held
+	 *
+	 *  @param  key The key code
+	 *  @return True if was held and false if not
+	 */
+	bool isKeyHeld(input::Key key) const;
+
+	/**
+	 *  @brief  Returns the last cursor position
+	 *
+	 *  @return The cursor coordinates on the screen
+	 */
+	GLFWevent::CursorPositionEvent getCursorPosition() const; 
+
+	/** Callback function for handling keyboard input */
+	void onKey(int key, int scancode, int action, int mods);
+
+	/** Callback function for handling mouse buttons input */
+	void onMouseButton(int button, int action, int mods);
+
+	/** Callback function for handling mouse cursor position */
+	void onCursorPosition(double x, double y);
+private:
+	Input(const Window &w);
+	Input();
+
+	void setupCallbacks();
+
+	void notify(GLFWevent::Type t, const GLFWevent &e);
+
+	std::map<GLFWevent::Type, std::vector<CallbackType>> m_observers;
+	GLFWwindow *m_window;
+};	
+
 }
 
 #endif //ETO_INPUT_HPP
