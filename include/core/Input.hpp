@@ -22,7 +22,7 @@ class Input
 public:
 	typedef std::function<void(const GLFWevent&)> CallbackType;
 
-	/** Returns single instance of the Input class */
+	/** Returns the single instance of the Input class */
 	static Input &getInstance();
 
 	/**

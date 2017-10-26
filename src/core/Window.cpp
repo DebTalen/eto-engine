@@ -128,7 +128,7 @@ Window::WinSize Window::getSize() const
 
 void Window::prepareCallbacks() 
 {
-//	glfwSetWindowUserPointer(m_window, this);
+	glfwSetWindowUserPointer(m_window, this);
 
 	// some dark magic from https://stackoverflow.com/questions/7676971/
 	/*#define genericCallback(functionName)\

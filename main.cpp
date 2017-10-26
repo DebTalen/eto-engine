@@ -1,80 +1,37 @@
 #include <iostream>
 #include <chrono>
-#include <thread>
-#include <vector>
 #include <cstdio>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <core/Window.hpp>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-#include <core/Input.hpp>
-#include <resources/AssetLoader.hpp>
 #include <resources/ShaderLoader.hpp>
 #include <resources/ModelLoader.hpp>
 #include <graphcis/core/ShaderProgram.hpp>
 #include <graphcis/core/Renderable.hpp>
 #include <graphcis/core/Light.hpp>
-#include <graphcis/core/Camera.hpp>
-
+#include <components/CFpsCamera.hpp>
+#include <core/Entity.hpp>
 
 using std::cout;
 using std::endl;
 using namespace eto;
-
 using glm::vec3;
 
- enum CameraMovement {
-	 FORWARD  = input::Key::W,
-	 BACKWARD = input::Key::S,
-	 UPWARD   = input::Key::Space,
-	 DOWNWARD = input::Key::C,
-	 RIGHT    = input::Key::D,
-	 LEFT 	 = input::Key::A
- };
-void processKeyboard(CameraMovement direction, Camera &c)
+void printFPS()
 {
-	float velocity = 0.15;
-	switch (direction)
-	{
-		case FORWARD:
-			c.move(c.getTarget() * velocity); break;
-		case BACKWARD:
-			c.move(-(c.getTarget() * velocity)); break;
-		case LEFT:
-			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0,-1, 0))) * velocity); break;
-		case RIGHT:
-			c.move(glm::normalize(glm::cross(c.getTarget(), vec3(0, 1, 0))) * velocity); break;
-		case UPWARD:
-			c.move(vec3(0, 1, 0) * velocity); break;
-		case DOWNWARD:
-			c.move(vec3(0,-1, 0) * velocity); break;
+	static float lastTime = glfwGetTime();
+	static int numFrames = 0;
+	double time = glfwGetTime();
+	++numFrames;
+	if ( time - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
+		// printf and reset timer
+		printf("%f ms/frame\n", 1000.0/double(numFrames));
+		numFrames = 0;
+		lastTime += 1.0;
 	}
-	//	_pos.y = 0; for fixed floor
-}
-
-bool firstMouse = true;
-float lastX, lastY;
-void processMouse(float x, float y, Camera &c)
-{
-	if (firstMouse)
-	{
-		lastX = x;
-		lastY = y;
-		firstMouse = 0;
-	}
-	float xOffset = x - lastX;
-	float yOffset = lastY - y;
-	lastX = x;
-	lastY = y;
-
-	float sensity = 0.05;
-	xOffset *= sensity;
-	yOffset *= sensity;
-	c.rotate({xOffset, yOffset, 0});
 }
 
 int main()
@@ -93,6 +50,7 @@ int main()
 		return -1;
 	}
 	glEnable(GL_DEPTH_TEST);
+	//	glfwSwapInterval(0); // disable vsync and fixed frame rate
 
 	AssetLoader loader = AssetLoader::getInstance();
 	SPtr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
@@ -132,7 +90,7 @@ int main()
 		return 31;
 	}
 
-	auto cake_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/cadnav.com_model/Model_D0405211A19/D0405211A19.fbx", ws);
+	auto cake_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Asuka Soryu/School Uniform/Asuka School Uniform.obj", sd);
 	if (! cake_model->isLoaded()) {
 		std::cerr << cake_model->getErrorMessage() << std::endl;
 		return 33;
@@ -140,12 +98,14 @@ int main()
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	Camera camera(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 1));
+	Entity camera;
+	SPtr<CCamera> cam = camera.addComponent<CCamera>(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 1));
+	camera.addComponent<CFpsCamera>(camera);
 
 	Renderable cake(cake_model);
-	cake.scale(glm::vec3(0.1));
+	cake.scale(glm::vec3(0.05));
 	cake.translate(glm::vec3(-0, 0, -0));
-	cake.rotate(90, glm::vec3(1, 0, 0));
+	//cake.rotate(90, glm::vec3(1, 0, 0));
 	Renderable light(light_model);
 	light.scale(glm::vec3(0.2));
 	light.translate(glm::vec3(0, 0, 0));
@@ -158,30 +118,24 @@ int main()
 	float dd = 0.05;
 	Input &input = Input::getInstance();
 
-	input.addCallback(GLFWevent::Type::CursorPosition, [&](const GLFWevent &e) {
-			processMouse(e.data.cursorPos.x, e.data.cursorPos.y, camera);
-			});
-
-	input.addCallback(GLFWevent::Key, [&](const GLFWevent &e) {
-			processKeyboard(static_cast<CameraMovement>(e.data.key.key), camera);
-			});
-
 	while (! w.shouldClose())
 	{
+		printFPS();
 		w.pollEvents();
 		if (input.isKeyRelese(input::Escape))
 			w.setShouldClose(true);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ws->use();
-		ws->setMat4f("view", camera.getViewMatrix());
-		ws->setVec3f("view_position", camera.getPos());
+		ws->setMat4f("view", cam->getViewMatrix());
+		ws->setVec3f("view_position", cam->getPos());
 
+		sd->use();
+		sd->setMat4f("view", cam->getViewMatrix());
+		sd->setVec3f("view_position", cam->getPos());
 		cake.draw();
-		//		cake.rotate(1, glm::vec3(1, 0, 0));
-		light.draw();
 
 		light.translate(glm::vec3(d, 0, 0));
 		if (d < -0.5)
@@ -191,7 +145,7 @@ int main()
 		d += dd;
 
 		w.swapBuffers();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 	return 0;

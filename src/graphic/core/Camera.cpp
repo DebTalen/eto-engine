@@ -2,7 +2,7 @@
 
 using namespace eto;
 
-Camera::Camera(vec2 size, vec3 position)
+Camera::Camera(const vec2 &size, const vec3 &position)
 	: m_position(position), m_direction(0.0f), m_rotation(0.0f)
 {
 	m_aspectRatio = size.x / size.y;

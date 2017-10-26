@@ -22,7 +22,7 @@ public:
 	 *  @param  size The width and height of the view that are used as the aspect ratio
 	 *  @param  position Camera position in three-dimensional space
 	 */
-	Camera(vec2 size, vec3 position = vec3(0.0f));
+	Camera(const vec2 &size, const vec3 &position = vec3(0.0f));
 
 	/**
 	 *  @brief  Returns view matrix 
