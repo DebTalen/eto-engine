@@ -1,39 +1,58 @@
 cmake_minimum_required (VERSION 2.8)
-project (project)
+project (eto-engine)
 
+# lib dependecies 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(OpenGL REQUIRED)
+
+set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd_party")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${THIRD_PARTY_DIR})
+add_subdirectory(${THIRD_PARTY_DIR})
+
+# GLM
+set(GLM_ROOT_DIR "${THIRD_PARTY_DIR}/glm")
+find_package(GLM REQUIRED)
+include_directories(${GLM_INCLUDE_DIR})
+
+# GLFW
+set(GLFW_ROOT_DIR "${THIRD_PARTY_DIR}/glfw")
+if(WIN32)
+	set(GLFW_USE_STATIC_LIBS "1")
+endif()
+find_package(GLFW REQUIRED)
+include_directories(${GLFW_INCLUDE_DIR})
+
+# Assimp
+set(ASSIMP_ROOT_DIR "${THIRD_PARTY_DIR}/Assimp")
+find_package(Assimp REQUIRED)
+include_directories(${ASSIMP_INCLUDE_DIR})
+
+# bad way to grab files
 file (GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/*.hpp)
 file (GLOB_RECURSE sources_tests ${PROJECT_SOURCE_DIR}/tests/*.cpp)
-include_directories ("${PROJECT_SOURCE_DIR}/include/")
-include_directories ("${PROJECT_SOURCE_DIR}/3rd_party")
-include_directories ("${PROJECT_SOURCE_DIR}/3rd_party/assimp-4/include")
-link_directories("${PROJECT_SOURCE_DIR}/3rd_party/assimp-4/lib")
-add_subdirectory("3rd_party")
 
-set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad"
-       	 	 "stb_image" "stb_image_write" "assimp")
-
-add_library (my_lib ${sources})
-target_compile_options (my_lib PUBLIC -g -std=c++14 -Wall -Wextra)
-target_link_libraries(my_lib ${COMMON_DEPS})
-
-add_executable (eto main.cpp)
+# set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad" "stb_image" "stb_image_write" "assimp")
+# building lib
+add_library (eto ${sources})
 target_compile_options (eto PUBLIC -g -std=c++14 -Wall -Wextra)
-target_link_libraries(eto my_lib ${COMMON_DEPS})
+target_link_libraries(eto glad stb_image ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})
+if(NOT WIN32)
+        target_link_libraries(eto dl)
+endif()
 
-# this defines the variables Boost_LIBRARIES that contain all library names
-# that we need to link to
-#find_package(Boost 1.36.0 COMPONENTS filesystem system REQUIRED)
-
+#building example
+add_executable (example main.cpp)
+target_compile_options (example PUBLIC -g -std=c++14 -Wall -Wextra)
+target_link_libraries(example eto)
 
 add_executable(tests ${sources_tests})
-# this allows us to use our executable as a link library
-# therefore we can inherit all compiler options and library dependencies
-#set_target_properties(eto PROPERTIES ENABLE_EXPORTS on)
+target_link_libraries(tests eto)
 
-enable_testing()
-add_test(NAME tests COMMAND tests)
-target_link_libraries(tests my_lib ${COMMON_DEPS})
-#target_link_libraries(tests PUBLIC
-   #${GTEST_BOTH_LIBRARIES}
-#   eto
-#)
+if(WIN32)
+	# It creates "CMakePredefinedTargets" folder by default and adds CMake
+	# defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+        # Sets default start-up project in VS
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT example)
+endif()
