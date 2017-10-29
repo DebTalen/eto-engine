@@ -35,15 +35,21 @@ file (GLOB_RECURSE sources_tests ${PROJECT_SOURCE_DIR}/tests/*.cpp)
 # set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad" "stb_image" "stb_image_write" "assimp")
 # building lib
 add_library (eto ${sources})
-target_compile_options (eto PUBLIC -g -std=c++14 -Wall -Wextra)
 target_link_libraries(eto glad stb_image ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})
 if(NOT WIN32)
+	target_compile_options (eto PUBLIC -g -std=c++14 -Wall -Wextra)
         target_link_libraries(eto dl)
+else()
+	target_compile_options (eto PUBLIC /W4)
 endif()
 
 #building example
 add_executable (example main.cpp)
-target_compile_options (example PUBLIC -g -std=c++14 -Wall -Wextra)
+if(NOT WIN32)
+	target_compile_options (example PUBLIC -g -std=c++14 -Wall -Wextra)
+else()
+	target_compile_options (example PUBLIC /W4)
+endif()
 target_link_libraries(example eto)
 
 add_executable(tests ${sources_tests})
