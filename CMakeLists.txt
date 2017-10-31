@@ -44,6 +44,8 @@ else()
 endif()
 
 #building example
+set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+configure_file(main.cxx ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 add_executable (example main.cpp)
 if(NOT WIN32)
 	target_compile_options (example PUBLIC -g -std=c++14 -Wall -Wextra)

@@ -15,6 +15,9 @@
 #include <components/CFpsCamera.hpp>
 #include <core/Entity.hpp>
 
+//temporary measure
+#define ROOT_DIR std::string("${ROOT_DIR}")
+
 using std::cout;
 using std::endl;
 using namespace eto;
@@ -55,11 +58,11 @@ int main()
 	AssetLoader loader = AssetLoader::getInstance();
 	std::shared_ptr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
 	{
-		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
+		auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.vs", VertexShader);
 		if (! vs->isCompiled())
 			cout << vs->getErrorMessage() << endl;
 
-		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.fs", FragmentShader);
+		auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.fs", FragmentShader);
 		if (! fs->isCompiled())
 			cout << fs->getErrorMessage() << endl;
 		sd->attachShader(*vs);
@@ -70,11 +73,11 @@ int main()
 	}
 	auto ws = std::make_shared<ShaderProgram>();
 	{
-		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.vs", VertexShader);
+		auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.vs", VertexShader);
 		if (! vs->isCompiled())
 			cout << vs->getErrorMessage() << endl;
 
-		auto fs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/no_textures.fs", FragmentShader);
+		auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.fs", FragmentShader);
 		if (! fs->isCompiled())
 			cout << fs->getErrorMessage() << endl;
 		ws->attachShader(*vs);
@@ -84,13 +87,13 @@ int main()
 			cout << ws->getErrorMessage() << endl;
 	}
 
-	auto light_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/testsphere.nff", ws);
+	auto light_model = loader.load<ModelLoader>(ROOT_DIR + "/assets/testsphere.nff", ws);
 	if (! light_model->isLoaded()) {
 		std::cerr << light_model->getErrorMessage() << endl;
 		return 31;
 	}
 
-	auto cake_model = loader.load<ModelLoader>("/home/morgoth/cpp/eto/assets/Asuka Soryu/School Uniform/Asuka School Uniform.obj", sd);
+	auto cake_model = loader.load<ModelLoader>(ROOT_DIR + "/assets/Asuka Soryu/School Uniform/Asuka School Uniform.obj", sd);
 	if (! cake_model->isLoaded()) {
 		std::cerr << cake_model->getErrorMessage() << std::endl;
 		return 33;
