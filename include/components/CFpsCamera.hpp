@@ -8,7 +8,7 @@
 namespace eto
 {
 
-class CFpsCamera : public Component
+class CFpsCamera : public ComponentBase<CFpsCamera>
 {
 public:
 	CFpsCamera(const Entity &parent);

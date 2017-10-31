@@ -1,23 +1,30 @@
 #ifndef ETO_COMPONENT_HPP
 #define ETO_COMPONENT_HPP
 
-#include <core/ClassTypeId.hpp>
-
 namespace eto
 {
 
 class Component 
 {
 public:
+	typedef unsigned long TypeId;
 	virtual ~Component() { };
 	virtual void onUpdate() { }
+	virtual TypeId getType() const = 0;
 };
 
 template <typename T>
-detail::TypeId ComponentTypeId() 
+class ComponentBase : public Component
 {
-	return detail::ClassTypeId<Component>::GetTypeId<T>();
-}
+public:
+	static TypeId type;
+	virtual ~ComponentBase() { };
+	TypeId getType() const override { return T::type; }
+};
+
+static Component::TypeId nextType = 0;
+template <typename T>
+Component::TypeId ComponentBase<T>::type(nextType++);
 
 }
 

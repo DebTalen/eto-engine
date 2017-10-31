@@ -64,7 +64,7 @@ public:
 	void setActive(bool v) { m_active = v; }
 
 private:
-	std::map<detail::TypeId, std::shared_ptr<Component>> m_comps;
+	std::map<Component::TypeId, std::shared_ptr<Component>> m_comps;
 	bool m_active;
 };
 
@@ -73,7 +73,7 @@ std::shared_ptr<T> Entity::addComponent(Args&&... args)
 {
 	ETO_ASSERT( (std::is_base_of<Component, T>::value) );
 	std::shared_ptr<T> newComponent = std::make_shared<T>(std::forward<Args>(args)...);
-	m_comps[ComponentTypeId<T>()] = std::static_pointer_cast<Component>(newComponent);
+	m_comps[T::type] = std::static_pointer_cast<Component>(newComponent);
 	return newComponent;
 } 
 
@@ -81,7 +81,7 @@ template <typename T>
 std::shared_ptr<T> Entity::getComponent() const
 {
 	ETO_ASSERT( (std::is_base_of<Component, T>::value) );
-	auto it = m_comps.find(ComponentTypeId<T>());
+	auto it = m_comps.find(T::type);
 	if (it != m_comps.end() )
 		return std::static_pointer_cast<T>(it->second);
 	return nullptr;
@@ -92,7 +92,7 @@ template <typename T>
 void Entity::removeComponent()
 {
 	ETO_ASSERT( (std::is_base_of<Component, T>::value) );
-	auto it = m_comps.find(ComponentTypeId<T>());
+	auto it = m_comps.find(T::type);
 	if (it != m_comps.end() )
 		m_comps.erase(it);
 }

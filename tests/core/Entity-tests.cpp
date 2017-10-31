@@ -5,7 +5,7 @@ using namespace eto;
 
 namespace tests 
 {
-struct TestComponent: public Component
+struct TestComponent: public ComponentBase<TestComponent>
 {
 	virtual void onUpdate() override 
 	{

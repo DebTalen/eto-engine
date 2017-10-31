@@ -7,12 +7,10 @@
 
 namespace eto
 {
-
-
 /**
  *  @brief  Wraps a Camera as a Component.
  */
-class CCamera : public Component
+class CCamera : public ComponentBase<CCamera>
 {
 public:
 	CCamera(const vec2 &size, const vec3 &position = vec3(0.0f)) ;
