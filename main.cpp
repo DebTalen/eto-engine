@@ -53,7 +53,7 @@ int main()
 	//	glfwSwapInterval(0); // disable vsync and fixed frame rate
 
 	AssetLoader loader = AssetLoader::getInstance();
-	SPtr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
+	std::shared_ptr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
 	{
 		auto vs = loader.load<ShaderLoader>("/home/morgoth/cpp/eto/shaders/default.vs", VertexShader);
 		if (! vs->isCompiled())
@@ -99,7 +99,7 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	Entity camera;
-	SPtr<CCamera> cam = camera.addComponent<CCamera>(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 1));
+	std::shared_ptr<CCamera> cam = camera.addComponent<CCamera>(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 0));
 	camera.addComponent<CFpsCamera>(camera);
 
 	Renderable cake(cake_model);

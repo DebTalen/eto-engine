@@ -2,7 +2,7 @@
 
 using namespace eto;
 
-Renderable::Renderable(SPtr<Model> model)
+Renderable::Renderable(std::shared_ptr<Model> model)
 	: m_model(model), m_transform(1.0f)
 {
 	ETO_ASSERT(m_model != nullptr);

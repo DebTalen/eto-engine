@@ -16,7 +16,7 @@ TEST_CASE("Texture is created", "[Texture]")
 	SECTION("via AssetLoader")
 	{
 		AssetLoader loader = AssetLoader::getInstance();
-		SPtr<Texture> t = loader.load<TextureLoader>(STRINGFY(ROOT)"tests/assets/r64g64b64a255.png");
+		std::shared_ptr<Texture> t = loader.load<TextureLoader>(STRINGFY(ROOT)"tests/assets/r64g64b64a255.png");
 		if( t->isLoaded() != true )
 			FAIL( t->getErrorMessage() );
 		REQUIRE( t->getDataSize() == (t->getWidth() * t->getHeight() * t->getComponents() * t->getDepth()) );
@@ -53,7 +53,7 @@ TEST_CASE("Texture i/o", "[Texture]")
 	AssetLoader loader = AssetLoader::getInstance();
 	SECTION("Reading jpg")
 	{
-		SPtr<Texture> t = loader.load<TextureLoader>("tests/assets/r192g128b64.jpg");
+		std::shared_ptr<Texture> t = loader.load<TextureLoader>("tests/assets/r192g128b64.jpg");
 		REQUIRE( t->isLoaded() == true );
 
 		std::vector<uchar> data(t->getDataSize());
@@ -76,7 +76,7 @@ TEST_CASE("Texture i/o", "[Texture]")
 	} 
 	 SECTION("Reading png")
 	{
-		SPtr<Texture> t = loader.load<TextureLoader>("tests/assets/r64g64b64a255.png");
+		std::shared_ptr<Texture> t = loader.load<TextureLoader>("tests/assets/r64g64b64a255.png");
 		REQUIRE( t != nullptr );
 
 		std::vector<uchar> data(t->getDataSize());
@@ -100,7 +100,7 @@ TEST_CASE("Texture i/o", "[Texture]")
 	}
 	SECTION("Writting to the texture")
 	{
-		SPtr<Texture> t = loader.load<TextureLoader>("tests/assets/r64g64b64a255.png");
+		std::shared_ptr<Texture> t = loader.load<TextureLoader>("tests/assets/r64g64b64a255.png");
 		REQUIRE( t != nullptr );
 
 		std::vector<uchar> in(t->getDataSize());

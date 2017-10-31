@@ -16,6 +16,7 @@ using std::vector;
 using std::pair;
 using glm::vec3;
 using glm::vec2;
+typedef unsigned int uint;
 
 namespace eto
 {
@@ -36,7 +37,7 @@ struct Material
 		TexDiffuse,
 		TexSpecular
 	};
-	vector< pair<TextureType, SPtr<Texture>> > textures;
+	vector< pair<TextureType, std::shared_ptr<Texture>> > textures;
 	vec3 color_ambient = vec3(1);
 	vec3 color_diffuse = vec3(1);
 	vec3 color_specular = vec3(1);
@@ -90,7 +91,7 @@ public:
 	GLint   m_numVertices;
 	bool 	m_loaded;
 	Material m_material;
-//	SPtr<ShaderProgram> m_shader;
+//	std::shared_ptr<ShaderProgram> m_shader;
 };
 
 class Model : public Resource
@@ -99,19 +100,19 @@ public:
 	// Temporary  single shader program per model
 	// In future should load Model from xml where 
 	// shaders will be specified for each mesh or not ...
-	Model(const SPtr<ShaderProgram> pShader);
+	Model(const std::shared_ptr<ShaderProgram> pShader);
 
-	void addMesh(const SPtr<Mesh> pMesh);
+	void addMesh(const std::shared_ptr<Mesh> pMesh);
 
 	bool removeMesh(uint index);
 
 	uint getNumMeshes() const { return m_meshes.size(); }
 
-	SPtr<Mesh> getMesh(uint index) const { return (index >= m_meshes.size()) ? nullptr : m_meshes[index]; }
+	std::shared_ptr<Mesh> getMesh(uint index) const { return (index >= m_meshes.size()) ? nullptr : m_meshes[index]; }
 
 	bool isLoaded() const { return m_meshes.size(); }
 
-	SPtr<ShaderProgram> getShaderProgram() const { return m_shader; }
+	std::shared_ptr<ShaderProgram> getShaderProgram() const { return m_shader; }
 
 	std::string getErrorMessage() const;
 
@@ -125,9 +126,9 @@ public:
 
 	bool 		    m_loaded;
 	std::string 	    m_error;
-	vector<SPtr<Mesh>>  m_meshes;
-	SPtr<ShaderProgram> m_shader;
 	glm::mat4 	    m_modelTransform;
+	vector<std::shared_ptr<Mesh>>  m_meshes;
+	std::shared_ptr<ShaderProgram> m_shader;
 };
 
 }

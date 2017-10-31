@@ -65,7 +65,7 @@ public:
 	 *  @param  key The key code
 	 *  @return True if was released and false if not
 	 */
-	bool isKeyRelese(input::Key key) const;
+	bool isKeyRelease(input::Key key) const;
 
 	/**
 	 *  @brief  Indicates if the key was held

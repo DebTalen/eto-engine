@@ -11,7 +11,7 @@ namespace eto {
 namespace glfw {
 	bool GetInit();
 	bool GetWillTerminateOnExit();
-};
+}
 
 /*!
  *  \brief Represents GLFW winodw

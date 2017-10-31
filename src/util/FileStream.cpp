@@ -22,6 +22,8 @@ FileStream::FileStream(const std::string &path, unsigned accessMode)
 		m_size = m_fs.tellg();
 		m_fs.seekg(0, std::ios_base::beg);
 	}
+	else 
+		m_open = 0;
 }
 
 FileStream::~FileStream()

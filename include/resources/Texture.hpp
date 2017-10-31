@@ -6,11 +6,9 @@
 #include <vector>
 #include <glad/glad.h>
 
+typedef unsigned char uchar;
 namespace eto
 {
-template <typename T>
-using SPtr = std::shared_ptr<T>;
-typedef unsigned char uchar;
 
 namespace Image
 {

@@ -23,15 +23,15 @@ TEST_CASE("Mesh is loaded", "[Model]")
 	REQUIRE( mesh.getNumVertices() == v.size() );
 
 	Material material;
-	material.textures.push_back(std::pair<Material::TextureType, SPtr<Texture>>(Material::TexDiffuse, nullptr));
-	material.textures.push_back(std::pair<Material::TextureType, SPtr<Texture>>(Material::TexDiffuse, nullptr));
+	material.textures.push_back(std::pair<Material::TextureType, std::shared_ptr<Texture>>(Material::TexDiffuse, nullptr));
+	material.textures.push_back(std::pair<Material::TextureType, std::shared_ptr<Texture>>(Material::TexDiffuse, nullptr));
 	mesh.setMaterial(material);
 	REQUIRE( mesh.getNumTextures() == 2 );
 }
 
 TEST_CASE("Model is loaded", "[Model]")
 {
-	SPtr<ShaderProgram> sp = std::make_shared<ShaderProgram>();
+	std::shared_ptr<ShaderProgram> sp = std::make_shared<ShaderProgram>();
 	Model model(sp);
 	REQUIRE( model.isLoaded() == false );
 	REQUIRE( model.getNumMeshes() == 0 );
@@ -41,12 +41,12 @@ TEST_CASE("Model is loaded", "[Model]")
 	REQUIRE( model.getShaderProgram() == sp );
 	REQUIRE( model.getErrorMessage() == "");
 
-	SPtr<Mesh> mesh = std::make_shared<Mesh>();
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 	model.addMesh(mesh);
 	REQUIRE( model.isLoaded() == true );
 	REQUIRE( model.getNumMeshes() == 1 );
 	REQUIRE( model.getMesh(0) == mesh );
-	SPtr<Mesh> mesh2 = std::make_shared<Mesh>();
+	std::shared_ptr<Mesh> mesh2 = std::make_shared<Mesh>();
 	model.addMesh(mesh2);
 	REQUIRE( model.isLoaded() == true );
 	REQUIRE( model.getNumMeshes() == 2 );

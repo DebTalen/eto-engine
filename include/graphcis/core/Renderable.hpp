@@ -13,7 +13,7 @@ namespace eto
 class Renderable
 {
 public:
-	Renderable (SPtr<Model> model);
+	Renderable (std::shared_ptr<Model> model);
 
 	void translate(const glm::vec3 &v);
 
@@ -26,7 +26,7 @@ public:
 	//temorary functions
 	void draw();
 private:
-	SPtr<Model> m_model;
+	std::shared_ptr<Model> m_model;
 	mat4 	    m_transform; // model to world matrix
 };
 

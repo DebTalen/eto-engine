@@ -23,9 +23,10 @@ void ShaderProgram::link()
 		glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize)
 		{
-			GLchar log[logSize];
+			GLchar *log = new GLchar[logSize];
 			glGetProgramInfoLog(m_program, logSize, NULL, log);
 			m_error = log;
+			delete[] log;
 		}
 		else 
 			m_error = "Unknown linking error";

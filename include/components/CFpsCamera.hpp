@@ -24,7 +24,7 @@ public:
 	void setVelocity(float val) { m_velocity = val; }
 private:
 	std::shared_ptr<CCamera> m_camera;
-	bool  m_firstMouse = true;
+	bool  m_firstMouse;
 	float m_lastX;
        	float m_lastY;
 	float m_sens;

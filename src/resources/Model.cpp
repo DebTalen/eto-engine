@@ -52,14 +52,14 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &m_vao);
 }
 
-Model::Model(const SPtr<ShaderProgram> pShader)
+Model::Model(const std::shared_ptr<ShaderProgram> pShader)
 	: m_loaded(0), m_error(""), m_shader(pShader)
 {
 	ETO_ASSERT( m_shader != nullptr );
 	m_modelTransform = glm::mat4(1.0f);
 }
 
-void Model::addMesh(const SPtr<Mesh> pMesh)
+void Model::addMesh(const std::shared_ptr<Mesh> pMesh)
 {
 	m_meshes.push_back(pMesh); 
 }

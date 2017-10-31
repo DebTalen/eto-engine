@@ -53,10 +53,7 @@ public:
 	void setColor(const vec3 &ambient, const vec3 &diffuse, const vec3 &specular) ;
 
 	// temporary function
-	template <typename T>
-	using SPtr = std::shared_ptr<T>;
-
-	void apply(SPtr<ShaderProgram> shader);
+	void apply(std::shared_ptr<ShaderProgram> shader);
 private:
 	LightType m_type;
 	// commont properties

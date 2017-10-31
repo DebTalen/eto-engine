@@ -37,7 +37,7 @@ void Light::setColor(const vec3 &ambient, const vec3 &diffuse, const vec3 &specu
 	m_color.specular = specular;
 }
 
-void Light::apply(SPtr<ShaderProgram> shader)
+void Light::apply(std::shared_ptr<ShaderProgram> shader)
 {
 	shader->use();
 	shader->setVec3f("light.ambient", m_color.ambient);

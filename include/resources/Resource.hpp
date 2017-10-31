@@ -11,7 +11,7 @@ namespace eto
 */
 struct ResourceHandle
 {
-	typedef uint ResId;
+	typedef unsigned int ResId;
 	static const ResId NULL_ID = 0;
 
 	ResourceHandle() : id(NULL_ID) {}

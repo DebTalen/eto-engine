@@ -107,7 +107,7 @@ bool Input::isKeyPress(input::Key key) const
 	return glfwGetKey(m_window, key) == input::Press;
 }
 
-bool Input::isKeyRelese(input::Key key) const
+bool Input::isKeyRelease(input::Key key) const
 {
 	return glfwGetKey(m_window, key) == input::Release;
 }

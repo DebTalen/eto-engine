@@ -25,12 +25,19 @@ public:
 	static std::shared_ptr<Shader> load(const std::string &path, ShaderType type)
 	{
 		FileStream fs(path);
-		char buffer[fs.getSize()];
+		if(! fs.isOpen())
+		{
+			std::shared_ptr<Shader> pFail = std::make_shared<Shader>(type);
+			pFail->m_error = "Error: Unable to load file " + path;
+			return pFail;
+		}
+		char *buffer = new char[fs.getSize() + 1];
 		fs.read(buffer, fs.getSize());
 		buffer[fs.getSize()] = '\0';
 
 		std::shared_ptr<Shader> pShader = std::make_shared<Shader>(type);
 		pShader->compile(std::string(buffer));
+		delete[] buffer;
 		return pShader;
 	}
 

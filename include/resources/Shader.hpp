@@ -44,6 +44,8 @@ public:
 	bool isCompiled() const { return m_compiled; }
 private:
 	friend class ShaderProgram;
+	friend class ShaderLoader;
+
 	GLint 	    m_compiled;
 	std::string m_error;
 }; 

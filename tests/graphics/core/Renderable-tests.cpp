@@ -6,7 +6,7 @@ using namespace eto;
 
 TEST_CASE("Renderable is created", "[Renderable]")
 {
-	SPtr<Model> model;
+	std::shared_ptr<Model> model;
 	Renderable r(model);
 	glm::vec3 null_vec(0.0f);
 	glm::mat4 mat = glm::mat4(1.0f);
@@ -16,7 +16,7 @@ TEST_CASE("Renderable is created", "[Renderable]")
 
 TEST_CASE("Renderable is transformed", "[Renderable]")
 {
-	SPtr<Model> model;
+	std::shared_ptr<Model> model;
 	Renderable r(model);
 	glm::mat4 mat = glm::mat4(1.0f);
 
