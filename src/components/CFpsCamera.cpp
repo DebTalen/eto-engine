@@ -3,36 +3,44 @@
 using namespace eto;
   
 CFpsCamera::CFpsCamera(const Entity &parent)
-		: m_firstMouse(true)
+		: m_active(true), m_firstMouse(true)
 {
-	m_camera = parent.getComponent<CCamera>();
+	m_camera = parent.getComponent<CCamera>(); // should ckeck nullptr
 	m_velocity = 0.20;
 	m_sens = 0.05;
 	Input &input = Input::getInstance();
-	input.addCallback(GLFWevent::Type::CursorPosition, [&](const GLFWevent &e) {
-			  processMouse(e.data.cursorPos.x, e.data.cursorPos.y);
+	m_mouseCallbackId = input.addCallback(GLFWevent::CursorPosition, [&](const GLFWevent &e) {
+				processMouse(e.data.cursorPos.x, e.data.cursorPos.y);
 			  });
 
-	input.addCallback(GLFWevent::Key, [&](const GLFWevent &e) {
-			  processKeyboard(static_cast<CameraMovement>(e.data.key.key));
+	m_keyCallbackId = input.addCallback(GLFWevent::Key, [&](const GLFWevent &e) {
+				processKeyboard(static_cast<CameraMovement>(e.data.key.key));
 			  });
 }
 
 CFpsCamera::~CFpsCamera()
 {
-	Input &input = Input::getInstance();
-	input.removeCallback(GLFWevent::Type::CursorPosition, [&](const GLFWevent &e) {
-			     processMouse(e.data.cursorPos.x, e.data.cursorPos.y);
-			     });
+	unregisterCallbacks();
+}
 
-	input.removeCallback(GLFWevent::Key, [&](const GLFWevent &e) {
-			     processKeyboard(static_cast<CameraMovement>(e.data.key.key));
-			     });
+void CFpsCamera::unregisterCallbacks()
+{
+	if(m_active)
+	{
+		Input &input = Input::getInstance();
+		input.removeCallback(GLFWevent::CursorPosition, m_mouseCallbackId);
+		input.removeCallback(GLFWevent::Key, m_keyCallbackId);
+		m_active = false;
+	}
 }
 
 void CFpsCamera::processKeyboard(CameraMovement direction)
 {
-	auto c = m_camera;
+	if (m_camera.expired())	{
+		unregisterCallbacks();
+		return;
+	}
+	auto c = m_camera.lock();
 	switch (direction)
 	{
 		case FORWARD:
@@ -48,11 +56,14 @@ void CFpsCamera::processKeyboard(CameraMovement direction)
 		case DOWNWARD:
 			c->move(vec3(0,-1, 0) * m_velocity); break;
 	}
-	//	_pos->y = 0; for fixed floor
 }
 
 void CFpsCamera::processMouse(float x, float y)
 {
+	if (m_camera.expired())	{
+		unregisterCallbacks();
+		return;
+	}
 	if (m_firstMouse)
 	{
 		m_lastX = x;
@@ -66,7 +77,6 @@ void CFpsCamera::processMouse(float x, float y)
 
 	xOffset *= m_sens;
 	yOffset *= m_sens;
-	m_camera->rotate({xOffset, yOffset, 0});
+	m_camera.lock()->rotate({xOffset, yOffset, 0});
 }
-
 

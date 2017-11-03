@@ -6,10 +6,13 @@
 #include <core/GLFWevent.hpp>
 #include <core/Assert.hpp>
 #include <functional>
+#include <algorithm>
 #include <vector>
 #include <map>
 
 using eto::GLFWevent;
+using std::vector;
+using std::pair;
 
 namespace eto
 {
@@ -20,7 +23,8 @@ namespace eto
 class Input 
 {
 public:
-	typedef std::function<void(const GLFWevent&)> CallbackType;
+	using CallbackType = std::function<void(const GLFWevent&)>;
+	using CallbackId = unsigned long;
 
 	/** Returns the single instance of the Input class */
 	static Input &getInstance();
@@ -41,7 +45,7 @@ public:
 	 *  @param  type Event type to subscribe 
 	 *  @param  callback The callback function
 	 */
-	void addCallback(GLFWevent::Type type, CallbackType callback);
+	CallbackId addCallback(GLFWevent::Type type, CallbackType callback);
 
 	/**
 	 *  @brief  Removes the specified callback
@@ -49,7 +53,7 @@ public:
 	 *  @param  type Event type to unsubscribe 
 	 *  @param  callback The callback function
 	 */
-	void removeCallback(GLFWevent::Type type, CallbackType callback);
+	void removeCallback(GLFWevent::Type type, CallbackId id);
 
 	/**
 	 *  @brief  Indicates if the key was pressed
@@ -98,8 +102,10 @@ private:
 
 	void notify(GLFWevent::Type t, const GLFWevent &e);
 
-	std::map<GLFWevent::Type, std::vector<CallbackType>> m_observers;
+
+	std::map<GLFWevent::Type, vector<pair<CallbackId, CallbackType>> > m_observers;
 	GLFWwindow *m_window;
+	CallbackId nextCallbackId;
 };	
 
 }

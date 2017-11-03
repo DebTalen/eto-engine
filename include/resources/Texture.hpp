@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 
 typedef unsigned char uchar;
+typedef unsigned int uint;
 namespace eto
 {
 

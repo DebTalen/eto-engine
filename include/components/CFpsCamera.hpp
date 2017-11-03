@@ -23,7 +23,11 @@ public:
 
 	void setVelocity(float val) { m_velocity = val; }
 private:
-	std::shared_ptr<CCamera> m_camera;
+	std::weak_ptr<CCamera> m_camera;
+	Input::CallbackId      m_keyCallbackId;
+	Input::CallbackId      m_mouseCallbackId;
+
+	bool  m_active;
 	bool  m_firstMouse;
 	float m_lastX;
        	float m_lastY;
@@ -40,6 +44,7 @@ private:
 	};
 	void processKeyboard(CameraMovement direction);
 	void processMouse(float x, float y);
+	void unregisterCallbacks();
 };
 
 }

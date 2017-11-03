@@ -9,7 +9,7 @@ Input& Input::getInstance()
 }
 
 Input::Input()
-	: m_window(nullptr)
+	: m_window(nullptr), nextCallbackId(0)
 {
 }
 
@@ -69,37 +69,31 @@ void Input::onCursorPosition(double x, double y)
 	notify(event.type, event);
 }
 
-void Input::addCallback(GLFWevent::Type type, CallbackType callback)
+Input::CallbackId Input::addCallback(GLFWevent::Type type, CallbackType callback)
 {
-	m_observers[type].push_back(callback);
+	CallbackId newId = nextCallbackId++;
+	m_observers[type].push_back({newId, callback});
+	return newId;
 }
 
-void Input::removeCallback(GLFWevent::Type type, CallbackType callback)
+void Input::removeCallback(GLFWevent::Type type, CallbackId id)
 {
-	auto getAddress = [](CallbackType foo) {
-		CallbackType ** pFoo = foo.template target<CallbackType*>();
-		return (size_t) *pFoo;
-	};
-	size_t toRemove = getAddress(callback);
-
-	std::map<GLFWevent::Type, std::vector<CallbackType>>::iterator it = m_observers.find(type);
-	auto i = it->second.begin();
-	for (; i != it->second.end(); )
-	{
-		if (getAddress(*i) == toRemove) 
-		{
-			it->second.erase(i);
-			break;
-		}
-	}
+	auto it = m_observers.find(type);
+	if (it == m_observers.end())
+		return;
+	auto &vec = it->second;
+	vec.erase(std::remove_if(vec.begin(), vec.end(), 
+			[id](const pair<CallbackId, CallbackType> &i)	 {
+				 return i.first == id;
+			}));
 }
 
 void Input::notify(GLFWevent::Type t, const GLFWevent &e)
 {
 	auto it = m_observers.find(t);
 	if (it != m_observers.end())
-		for (auto i : it->second)
-			i(e);
+		for (auto const &i : it->second)
+			i.second(e);
 }
 
 bool Input::isKeyPress(input::Key key) const
