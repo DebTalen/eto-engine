@@ -9,8 +9,8 @@
 namespace eto {
 
 namespace glfw {
-	bool GetInit();
-	bool GetWillTerminateOnExit();
+	bool get_init();
+	bool get_will_terminate_on_exit();
 }
 
 /*!
@@ -46,13 +46,13 @@ public:
 	/** @brief  Indicates whether the window should be closed or not
 	 *  @return 1 if window is to be closed otherwise 0
 	 */
-	bool shouldClose() const;
+	bool should_close() const;
 
 	/** Sets the shouldClose flag to the specified value */
-	void setShouldClose(int value);
+	void set_should_close(int value);
 
 	/** Polls events form the operating system */
-	void pollEvents();
+	void poll_events();
 
 	/*!
 	 *  \brief  Sets the spesified hint to the specified value 
@@ -61,25 +61,24 @@ public:
 	 *  \param  code hint code 
 	 *  \param  value hint value
 	 */
-	void setWinHint(int code, int value);
+	void set_win_hint(int code, int value);
 	
-	void setInputMode(int code, int value);
+	void set_input_mode(int code, int value);
 	
-	void setPos(WinPos position);
-	void setPos(int x, int y);
-	WinPos getPos() const;
+	void set_pos(WinPos position);
+	void set_pos(int x, int y);
+	WinPos get_pos() const;
 
-	void setSize(WinSize size);
-	void setSize(int w, int h);
-	WinSize getSize() const;
+	void set_size(WinSize size);
+	void set_size(int w, int h);
+	WinSize get_size() const;
 
-	void swapBuffers() { glfwSwapBuffers(m_window); }
+	void swap_buffers() { glfwSwapBuffers(m_window); }
 
 	// temporary measure
-	GLFWwindow *getRawPointer() const { return m_window; }
+	GLFWwindow *get_raw_pointer() const { return m_window; }
 private:
 	friend class Input;
-	void prepareCallbacks();
 
 	GLFWwindow	     *m_window;
 	WinSize     	      m_size;

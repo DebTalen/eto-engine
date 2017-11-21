@@ -30,7 +30,7 @@ public:
 	 *  View matrix is already multiplied with the projection matrix
 	 *  @return 4x4 matrix
 	 */
-	glm::mat4 getViewMatrix() const;
+	glm::mat4 get_view_matrix() const;
 
 	/**
 	 *  @brief  Returns projection matrix
@@ -38,7 +38,7 @@ public:
 	 *  Camera is unsing the perspective projection
 	 *  @return 4x4 matrix
 	 */
-	glm::mat4 getProjectionMatrix() const;
+	glm::mat4 get_projection_matrix() const;
 
 	/**
 	 *  @brief  Adds specified vector to the camera position
@@ -56,45 +56,45 @@ public:
 	 *  @brief  Returns the camera position
 	 *  @return The camera coordinates in three-dimensional space
 	 */
-	vec3 getPos() const { return m_position; }
+	vec3 get_pos() const { return m_position; }
 
 	/**
 	 *  @brief  Sets the camera position.
 	 *  @param  pos The position to be set
 	 */
-	void setPos(const vec3 &pos);
+	void set_pos(const vec3 &pos);
 
 	/**
 	 *  @brief  Returns the camera rotation
 	 *  @return The camera rotation in degrees
 	 */
-	vec3 getRotate() const { return m_rotation; }
+	vec3 get_rotate() const { return m_rotation; }
 
 	/**
 	 *  @brief  Sets the camera rotation
 	 *  @param  rotation The angles of each axis in degrees
 	 */
-	void setRotate(const vec3 &rotation);
+	void set_rotate(const vec3 &rotation);
 
 	/**
 	 *  @brief  Returns the camera direction
 	 */
-	vec3 getTarget() const { return m_direction; }
+	vec3 get_target() const { return m_direction; }
 private:
 	vec3 m_position;
        	vec3 m_direction;
 	vec3 m_up;
        	vec3 m_right;
-	vec3 m_worldUp;
+	vec3 m_world_up;
 	vec3 m_rotation;
 	glm::mat4 m_projection;
 
 	float m_fov;
-	float m_aspectRatio;
+	float m_aspect_ratio;
 	float m_near;
 	float m_far;
 
-	void updateCamera();
+	void update_camera();
 };
 
 }

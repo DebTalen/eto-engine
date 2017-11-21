@@ -17,47 +17,47 @@ TEST_CASE("Mesh is loaded", "[Model]")
 		0, 1, 3
 	};
 	Mesh mesh;
-	mesh.setGeometry(v, i);
+	mesh.set_geometry(v, i);
 	REQUIRE( glGetError() == GL_NO_ERROR );
-	REQUIRE( mesh.getNumIndices() == i.size() );
-	REQUIRE( mesh.getNumVertices() == v.size() );
+	REQUIRE( mesh.get_num_indices() == i.size() );
+	REQUIRE( mesh.get_num_vertices() == v.size() );
 
 	Material material;
 	material.textures.push_back(std::pair<Material::TextureType, std::shared_ptr<Texture>>(Material::TexDiffuse, nullptr));
 	material.textures.push_back(std::pair<Material::TextureType, std::shared_ptr<Texture>>(Material::TexDiffuse, nullptr));
-	mesh.setMaterial(material);
-	REQUIRE( mesh.getNumTextures() == 2 );
+	mesh.set_material(material);
+	REQUIRE( mesh.get_num_textures() == 2 );
 }
 
 TEST_CASE("Model is loaded", "[Model]")
 {
 	std::shared_ptr<ShaderProgram> sp = std::make_shared<ShaderProgram>();
 	Model model(sp);
-	REQUIRE( model.isLoaded() == false );
-	REQUIRE( model.getNumMeshes() == 0 );
-	REQUIRE( model.getMesh(0) == nullptr );
-	REQUIRE( model.removeMesh(1) == false);
-	REQUIRE( model.getTransform() == glm::mat4(1.0f) );
-	REQUIRE( model.getShaderProgram() == sp );
-	REQUIRE( model.getErrorMessage() == "");
+	REQUIRE( model.is_loaded() == false );
+	REQUIRE( model.get_num_meshes() == 0 );
+	REQUIRE( model.get_mesh(0) == nullptr );
+	REQUIRE( model.remove_mesh(1) == false);
+	REQUIRE( model.get_transform() == glm::mat4(1.0f) );
+	REQUIRE( model.get_shader_program() == sp );
+	REQUIRE( model.get_error_message() == "");
 
 	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-	model.addMesh(mesh);
-	REQUIRE( model.isLoaded() == true );
-	REQUIRE( model.getNumMeshes() == 1 );
-	REQUIRE( model.getMesh(0) == mesh );
+	model.add_mesh(mesh);
+	REQUIRE( model.is_loaded() == true );
+	REQUIRE( model.get_num_meshes() == 1 );
+	REQUIRE( model.get_mesh(0) == mesh );
 	std::shared_ptr<Mesh> mesh2 = std::make_shared<Mesh>();
-	model.addMesh(mesh2);
-	REQUIRE( model.isLoaded() == true );
-	REQUIRE( model.getNumMeshes() == 2 );
-	REQUIRE( model.getMesh(1) == mesh2 );
-	REQUIRE( model.removeMesh(0) == true);
-	REQUIRE( model.getNumMeshes() == 1 );
-	REQUIRE( model.getMesh(0) == mesh2 );
+	model.add_mesh(mesh2);
+	REQUIRE( model.is_loaded() == true );
+	REQUIRE( model.get_num_meshes() == 2 );
+	REQUIRE( model.get_mesh(1) == mesh2 );
+	REQUIRE( model.remove_mesh(0) == true);
+	REQUIRE( model.get_num_meshes() == 1 );
+	REQUIRE( model.get_mesh(0) == mesh2 );
 
 	glm::mat4 mat = glm::mat4(20.0f);
-	model.setTranform(mat);
-	REQUIRE( model.getTransform() == mat );
+	model.set_tranform(mat);
+	REQUIRE( model.get_transform() == mat );
 }
 
 

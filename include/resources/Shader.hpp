@@ -29,7 +29,7 @@ public:
 	 *
 	 *  Tries to comile shader and sets flag of success
 	 *  @param  src Contain source code of the shader
-	 *  @see [isCompiled]
+	 *  @see [is_compiled]
 	 */
 	void compile(const std::string &src);
 
@@ -39,9 +39,9 @@ public:
 	 *  Returns compilation error if any.
 	 *  @return String with error information. If no errors had occurred than returns empty string.
 	 */
-	std::string getErrorMessage() const { return m_error; }
+	std::string get_error_message() const { return m_error; }
 
-	bool isCompiled() const { return m_compiled; }
+	bool is_compiled() const { return m_compiled; }
 private:
 	friend class ShaderProgram;
 	friend class ShaderLoader;

@@ -7,7 +7,7 @@ std::shared_ptr<Texture> TextureLoader::load(const std::string &path)
 {
 	if (path.empty()) {
 		std::shared_ptr<Texture> fail = std::make_shared<Texture>();
-		fail->setErrorMessage("Invalid file name");
+		fail->set_error_message("Invalid file name");
 		return fail;
 	}
 
@@ -16,7 +16,7 @@ std::shared_ptr<Texture> TextureLoader::load(const std::string &path)
 	uchar *pData = stbi_load(path.c_str(), &w, &h, &c, 0);
 	if (pData == NULL) {
 		std::shared_ptr<Texture> fail = std::make_shared<Texture>();
-		fail->setErrorMessage("Invalid file name: " + path);
+		fail->set_error_message("Invalid file name: " + path);
 		return fail;
 	}
 

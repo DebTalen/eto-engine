@@ -82,7 +82,7 @@ public:
 	 void clear();
 	 */
 	 
-	static AssetLoader &getInstance();
+	static AssetLoader &get_instance();
 private:
 	AssetLoader();
 

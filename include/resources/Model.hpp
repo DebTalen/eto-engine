@@ -26,7 +26,7 @@ struct Vertex
 {
 	vec3 pos;
 	vec3 normal;
-	vec2 texCoord;
+	vec2 tex_coord;
 };
 
 /** Represents materials of a mesh */
@@ -63,7 +63,7 @@ public:
 	 *  @param  vertices Set of mesh vertices
 	 *  @oaram  indices  Set of mesh indices 
 	 */
-	void setGeometry(const vector<Vertex> &vertices,
+	void set_geometry(const vector<Vertex> &vertices,
 			 const vector<uint>   &indices );
 	/**
 	 *  @brief  Sets the specidied material to the mesh
@@ -71,11 +71,11 @@ public:
 	 *  The Material is used for mesh rendering to achieve more realistic output
 	 *  @param  material The Material to set
 	 */
-	void setMaterial(const Material &material);
+	void set_material(const Material &material);
 
-	int getNumTextures() const { return m_material.textures.size(); }
-	int getNumVertices() const { return m_numVertices; }
-	int getNumIndices() const { return m_numIndices; } 
+	int get_num_textures() const { return m_material.textures.size(); }
+	int get_num_vertices() const { return m_num_vertices; }
+	int get_num_indices() const { return m_num_indices; } 
 public:
 	/** You cannot copy a Mesh because it has assosiated GPU data that will be freed after rhs destruction */
 	Mesh (const Mesh &rhs) = delete;
@@ -87,8 +87,8 @@ public:
 	GLuint 	m_vao;
 	GLuint 	m_vbo;
 	GLuint	m_ebo;
-	GLint   m_numIndices;
-	GLint   m_numVertices;
+	GLint   m_num_indices;
+	GLint   m_num_vertices;
 	bool 	m_loaded;
 	Material m_material;
 //	std::shared_ptr<ShaderProgram> m_shader;
@@ -102,31 +102,32 @@ public:
 	// shaders will be specified for each mesh or not ...
 	Model(const std::shared_ptr<ShaderProgram> pShader);
 
-	void addMesh(const std::shared_ptr<Mesh> pMesh);
+	void add_mesh(const std::shared_ptr<Mesh> pMesh);
 
-	bool removeMesh(uint index);
+	bool remove_mesh(uint index);
 
-	uint getNumMeshes() const { return m_meshes.size(); }
+	uint get_num_meshes() const { return m_meshes.size(); }
 
-	std::shared_ptr<Mesh> getMesh(uint index) const { return (index >= m_meshes.size()) ? nullptr : m_meshes[index]; }
+	std::shared_ptr<Mesh> get_mesh(uint index) const { return (index >= m_meshes.size()) ? nullptr : m_meshes[index]; }
 
-	bool isLoaded() const { return m_meshes.size(); }
+	bool is_loaded() const { return m_meshes.size(); }
 
-	std::shared_ptr<ShaderProgram> getShaderProgram() const { return m_shader; }
+	std::shared_ptr<ShaderProgram> get_shader_program() const { return m_shader; }
 
-	std::string getErrorMessage() const;
+	std::string get_error_message() const;
 
-	glm::mat4 getTransform() const { return m_modelTransform; }
+	glm::mat4 get_transform() const { return m_model_transform; }
 
-	void setTranform(const glm::mat4 MtW) { m_modelTransform = MtW; }
+	void set_tranform(const glm::mat4 MtW) { m_model_transform = MtW; }
 
 public:
 	friend class ModelLoader;
-	void setErrorMessage(const std::string error) { m_error = error; }
+	friend class Renderer;
+	void set_error_message(const std::string error) { m_error = error; }
 
 	bool 		    m_loaded;
 	std::string 	    m_error;
-	glm::mat4 	    m_modelTransform;
+	glm::mat4 	    m_model_transform;
 	vector<std::shared_ptr<Mesh>>  m_meshes;
 	std::shared_ptr<ShaderProgram> m_shader;
 };

@@ -21,11 +21,10 @@ public:
 
 	void scale(const glm::vec3 &v);
 
-	mat4 getTransform() const { return m_transform; }
+	mat4 get_transform() const { return m_transform; }
 	
-	//temorary functions
-	void draw();
 private:
+	friend class Renderer;
 	std::shared_ptr<Model> m_model;
 	mat4 	    m_transform; // model to world matrix
 };

@@ -28,33 +28,32 @@ public:
 
 	Light (LightType type, const vec3 &position, const vec3 &direction);
 
-	LightType getType() const { return m_type; }
+	LightType get_type() const { return m_type; }
 
-	vec3 getPosition() const { return m_position; }
-	void setPosition(const vec3 &position) { m_position = position; }
-	void setPosition(float x, float y, float z);
+	vec3 get_position() const { return m_position; }
+	void set_position(const vec3 &position) { m_position = position; }
+	void set_position(float x, float y, float z);
 
-	vec3 getDirection() const { return m_direction; }
-	void setDirection(const vec3 &direction) { m_direction = direction; }
-	void setDirection(float x, float y, float z);
+	vec3 get_direction() const { return m_direction; }
+	void set_direction(const vec3 &direction) { m_direction = direction; }
+	void set_direction(float x, float y, float z);
 
-	float getInnerCutOff() const { return m_innerCutOff; }
-	void setInnerCutOff(float degrees) { m_innerCutOff = degrees; }
+	float get_inner_cut_off() const { return m_inner_cut_off; }
+	void set_inner_cut_off(float degrees) { m_inner_cut_off = degrees; }
 
-	float getOuterCutOff() const { return m_outerCutOff; }
-	void setOuterCutOff(float degrees) { m_outerCutOff = degrees; }
+	float get_outer_cut_off() const { return m_outer_cut_off; }
+	void set_outer_cut_off(float degrees) { m_outer_cut_off = degrees; }
 
-	Attenuation getAttenuation() const { return m_att; }
-	void setAttenuation(const Attenuation &att) { m_att= att; }
-	void setAttenuation(float constant, float linear, float quadratic);
+	Attenuation get_attenuation() const { return m_att; }
+	void set_attenuation(const Attenuation &att) { m_att= att; }
+	void set_attenuation(float constant, float linear, float quadratic);
 
-	LightColor getColor() const { return m_color; }
-	void setColor(const LightColor &color) { m_color = color; }
-	void setColor(const vec3 &ambient, const vec3 &diffuse, const vec3 &specular) ;
+	LightColor get_color() const { return m_color; }
+	void set_color(const LightColor &color) { m_color = color; }
+	void set_color(const vec3 &ambient, const vec3 &diffuse, const vec3 &specular) ;
 
-	// temporary function
-	void apply(std::shared_ptr<ShaderProgram> shader);
 private:
+	friend class Renderer;
 	LightType m_type;
 	// commont properties
 	vec3 m_position;
@@ -65,8 +64,8 @@ private:
 	Attenuation m_att;
 
 	// spot light properties
-	float m_innerCutOff;
-	float m_outerCutOff;
+	float m_inner_cut_off;
+	float m_outer_cut_off;
 };
 
 }

@@ -4,8 +4,8 @@ using std::size_t;
 
 using namespace eto;
 
-FileStream::FileStream(const std::string &path, unsigned accessMode)
-	: m_mode(accessMode)
+FileStream::FileStream(const std::string &path, unsigned access_mode)
+	: m_mode(access_mode)
 {
 	std::ios::openmode mode = std::ios::binary;
 	if (m_mode & Read)
@@ -33,7 +33,7 @@ FileStream::~FileStream()
 
 size_t FileStream::read(void *buffer, size_t count)
 {
-	if (m_open && isReadable())
+	if (m_open && is_readable())
 	{
 		m_fs.read(static_cast<char*>(buffer), static_cast<std::streamsize>(count));
 		return static_cast<size_t>(m_fs.gcount());
@@ -43,7 +43,7 @@ size_t FileStream::read(void *buffer, size_t count)
 
 size_t FileStream::write(const void *buffer, size_t count)
 {
-	if (m_open && isWritable())
+	if (m_open && is_writable())
 	{
 		m_fs.write(static_cast<const char*>(buffer), static_cast<std::streamsize>(count));
 		return count;

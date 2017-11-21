@@ -46,7 +46,7 @@ public:
 		uint   	      width = 1;
 		uint          height = 1;
 		uint	      depth = 1;
-		bool          isMipmap = 1;
+		bool          is_mipmap = 1;
 		TextureProps() {}
 	};
 
@@ -68,29 +68,28 @@ public:
 	 */
 	void read(std::vector<uchar> &data);
 
-	uint getWidth() const { return m_tp.width; }
-	uint getHeight() const { return m_tp.height; }
-	uint getDepth() const { return m_tp.depth; }
-	uint getComponents() const { return (m_tp.format == Image::Format::Tex_RGB) ? 3 : 4; }
-	bool isLoaded() const { return m_loaded; }
-	bool isMipmaped() const { return m_tp.isMipmap; }
-	std::size_t getDataSize() const { return m_dataSize; }
-	std::string getErrorMessage() const { return m_error; }
+	uint get_width() const { return m_tp.width; }
+	uint get_height() const { return m_tp.height; }
+	uint get_depth() const { return m_tp.depth; }
+	uint get_components() const { return (m_tp.format == Image::Format::Tex_RGB) ? 3 : 4; }
+	bool is_loaded() const { return m_loaded; }
+	bool is_mipmaped() const { return m_tp.is_mipmap; }
+	std::size_t get_data_size() const { return m_data_size; }
+	std::string get_error_message() const { return m_error; }
 private:
 	Texture(const Texture &rhs) = delete;
 	Texture &operator= (const Texture &rhs) = delete;
 
 	int load(const std::vector<uchar> &data); 
-	GLint getPrevTexBind();
+	GLint get_prev_tex_bind();
 
-	// temporary, should be replaced by Renderer
-	friend class Renderable;
+	friend class Renderer;
 	friend class TextureLoader;
-	void setErrorMessage(const std::string &error) { m_error = error; }
+	void set_error_message(const std::string &error) { m_error = error; }
 
 	TextureProps m_tp;
 	bool	     m_loaded;
-	std::size_t  m_dataSize;
+	std::size_t  m_data_size;
 	std::string  m_error;
 };
 }

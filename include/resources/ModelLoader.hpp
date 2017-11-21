@@ -38,11 +38,11 @@ public:
 private:
 	ModelLoader () {}
 
-	static void processNode(const aiScene *scene, const aiNode *node, std::shared_ptr<Model> model, const std::string &path);
+	static void process_node(const aiScene *scene, const aiNode *node, std::shared_ptr<Model> model, const std::string &path);
 
-	static std::shared_ptr<Mesh> processMesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
+	static std::shared_ptr<Mesh> process_mesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
 
-	static void processMaterial(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
+	static void process_material(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
 
 };
 
