@@ -7,13 +7,12 @@
 #include <core/Window.hpp>
 #include <glm/glm.hpp>
 
+#include <core/Input.hpp>
+#include <resources/AssetLoader.hpp>
 #include <resources/ShaderLoader.hpp>
 #include <resources/ModelLoader.hpp>
 #include <graphcis/core/ShaderProgram.hpp>
-#include <graphcis/core/Renderable.hpp>
-#include <graphcis/core/Light.hpp>
-#include <components/CFpsCamera.hpp>
-#include <core/Entity.hpp>
+#include <core/EntityManager.hpp>
 
 //temporary measure
 #define ROOT_DIR std::string("${ROOT_DIR}")
@@ -23,133 +22,110 @@ using std::endl;
 using namespace eto;
 using glm::vec3;
 
-void printFPS()
+void print_fPS()
 {
-	static float lastTime = glfwGetTime();
-	static int numFrames = 0;
+	static float last_time = glfwGetTime();
+	static int num_frames = 0;
 	double time = glfwGetTime();
-	++numFrames;
-	if ( time - lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
+	++num_frames;
+	if ( time - last_time >= 1.0 ){ // If last prinf() was more than 1 sec ago
 		// printf and reset timer
-		printf("%f ms/frame\n", 1000.0/double(numFrames));
-		numFrames = 0;
-		lastTime += 1.0;
+		printf("%f ms/frame\n", 1000.0/double(num_frames));
+		num_frames = 0;
+		last_time += 1.0;
 	}
 }
 
 int main()
 {
-	Window w;
-	w.create(1280, 720, "a");
-	w.setInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	w.setPos({0, 100});
-	glfwMakeContextCurrent(w.getRawPointer());
 
-	Input::getInstance().setWindow(w);
+	/* 	Window w;
+		w.create(1280, 720, "a");
+		w.set_input_mode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		w.set_pos({0, 100});
+		glfwMakeContextCurrent(w.get_raw_pointer());
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
+		Input::get_instance().set_window(w);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
-	}
-	glEnable(GL_DEPTH_TEST);
+		}
+		glEnable(GL_DEPTH_TEST);
 	//	glfwSwapInterval(0); // disable vsync and fixed frame rate
 
-	AssetLoader loader = AssetLoader::getInstance();
+	AssetLoader loader = AssetLoader::get_instance();
 	std::shared_ptr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
 	{
-		auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.vs", VertexShader);
-		if (! vs->isCompiled())
-			cout << vs->getErrorMessage() << endl;
+	auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.vs", VertexShader);
+	if (! vs->is_compiled())
+	cout << vs->get_error_message() << endl;
 
-		auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.fs", FragmentShader);
-		if (! fs->isCompiled())
-			cout << fs->getErrorMessage() << endl;
-		sd->attachShader(*vs);
-		sd->attachShader(*fs);
-		sd->link();
-		if (! sd->isLinked() )
-			cout << sd->getErrorMessage() << endl;
+	auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/default.fs", FragmentShader);
+	if (! fs->is_compiled())
+	cout << fs->get_error_message() << endl;
+	sd->attach_shader(*vs);
+	sd->attach_shader(*fs);
+	sd->link();
+	if (! sd->is_linked() )
+	cout << sd->get_error_message() << endl;
 	}
 	auto ws = std::make_shared<ShaderProgram>();
 	{
-		auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.vs", VertexShader);
-		if (! vs->isCompiled())
-			cout << vs->getErrorMessage() << endl;
+	auto vs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.vs", VertexShader);
+	if (! vs->is_compiled())
+	cout << vs->get_error_message() << endl;
 
-		auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.fs", FragmentShader);
-		if (! fs->isCompiled())
-			cout << fs->getErrorMessage() << endl;
-		ws->attachShader(*vs);
-		ws->attachShader(*fs);
-		ws->link();
-		if (! ws->isLinked() )
-			cout << ws->getErrorMessage() << endl;
+	auto fs = loader.load<ShaderLoader>(ROOT_DIR + "/shaders/no_textures.fs", FragmentShader);
+	if (! fs->is_compiled())
+	cout << fs->get_error_message() << endl;
+	ws->attach_shader(*vs);
+	ws->attach_shader(*fs);
+	ws->link();
+	if (! ws->is_linked() )
+	cout << ws->get_error_message() << endl;
 	}
 
-	auto light_model = loader.load<ModelLoader>(ROOT_DIR + "/assets/testsphere.nff", ws);
-	if (! light_model->isLoaded()) {
-		std::cerr << light_model->getErrorMessage() << endl;
-		return 31;
+	auto sphere_model = loader.load<ModelLoader>(ROOT_DIR + "/assets/testsphere.nff", ws);
+	if (! sphere_model->is_loaded()) {
+	std::cerr << sphere_model->get_error_message() << endl;
+	return 31;
 	}
 
 	auto cake_model = loader.load<ModelLoader>(ROOT_DIR + "/assets/Asuka Soryu/School Uniform/Asuka School Uniform.obj", sd);
-	if (! cake_model->isLoaded()) {
-		std::cerr << cake_model->getErrorMessage() << std::endl;
-		return 33;
+	if (! cake_model->is_loaded()) {
+	std::cerr << cake_model->get_error_message() << std::endl;
+	return 33;
 	}
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	Entity camera;
-	std::shared_ptr<CCamera> cam = camera.addComponent<CCamera>(glm::vec2(w.getSize().x, w.getSize().y), glm::vec3(-4, 0, 0));
-	camera.addComponent<CFpsCamera>(camera);
-
-	Renderable cake(cake_model);
-	cake.scale(glm::vec3(0.05));
-	cake.translate(glm::vec3(-0, 0, -0));
-	//cake.rotate(90, glm::vec3(1, 0, 0));
-	Renderable light(light_model);
-	light.scale(glm::vec3(0.2));
-	light.translate(glm::vec3(0, 0, 0));
-
-	Light dirLight(Light::Directional, vec3(0), vec3(0, -2, 0));
-	dirLight.apply(ws);
-	dirLight.apply(sd);
-
 	float d = 0;
 	float dd = 0.05;
-	Input &input = Input::getInstance();
+	Input &input = Input::get_instance();
 
-	while (! w.shouldClose())
+	while (! w.should_close())
 	{
-		printFPS();
-		w.pollEvents();
-		if (input.isKeyRelease(input::Escape))
-			w.setShouldClose(true);
+	print_fPS();
+	w.poll_events();
+	if (input.is_key_release(input::Escape))
+	w.set_should_close(true);
 
-	 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ws->use();
-		ws->setMat4f("view", cam->getViewMatrix());
-		ws->setVec3f("view_position", cam->getPos());
+	if (d < -0.5)
+		dd = 0.005;
+	else if (d > 0.5) 
+		dd = -0.005;
+	d += dd;
 
-		sd->use();
-		sd->setMat4f("view", cam->getViewMatrix());
-		sd->setVec3f("view_position", cam->getPos());
-		cake.draw();
+	w.swap_buffers();
+	//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
 
-		light.translate(glm::vec3(d, 0, 0));
-		if (d < -0.5)
-			dd = 0.005;
-		else if (d > 0.5) 
-			dd = -0.005;
-		d += dd;
+*/
 
-		w.swapBuffers();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-
-	return 0;
+return 0;
 }
