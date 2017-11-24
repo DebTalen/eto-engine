@@ -98,17 +98,17 @@ void Input::notify(GLFWevent::Type t, const GLFWevent &e)
 
 bool Input::is_key_press(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Press;
+	return (glfwGetKey(m_window, key) == input::Press);
 }
 
 bool Input::is_key_release(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Release;
+	return !(glfwGetKey(m_window, key) == input::Release);
 }
 
 bool Input::is_key_held(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Repeat;
+	return (glfwGetKey(m_window, key) == input::Repeat);
 }
 
 GLFWevent::CursorPositionEvent Input::get_cursor_position() const

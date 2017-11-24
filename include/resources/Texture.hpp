@@ -52,6 +52,10 @@ public:
 
 	explicit Texture(const TextureProps &tp = {});
 
+	Texture(const Texture &rhs) = delete;
+
+	Texture &operator= (const Texture &rhs) = delete;
+
 	~Texture();
 
 	/**
@@ -68,23 +72,10 @@ public:
 	 */
 	void read(std::vector<uchar> &data);
 
-	uint get_width() const { return m_tp.width; }
-	uint get_height() const { return m_tp.height; }
-	uint get_depth() const { return m_tp.depth; }
-	uint get_components() const { return (m_tp.format == Image::Format::Tex_RGB) ? 3 : 4; }
-	bool is_loaded() const { return m_loaded; }
-	bool is_mipmaped() const { return m_tp.is_mipmap; }
-	std::size_t get_data_size() const { return m_data_size; }
-	std::string get_error_message() const { return m_error; }
-private:
-	Texture(const Texture &rhs) = delete;
-	Texture &operator= (const Texture &rhs) = delete;
 
 	int load(const std::vector<uchar> &data); 
 	GLint get_prev_tex_bind();
 
-	friend class Renderer;
-	friend class TextureLoader;
 	void set_error_message(const std::string &error) { m_error = error; }
 
 	TextureProps m_tp;

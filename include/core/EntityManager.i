@@ -1,3 +1,5 @@
+// DO NOT INCLUDE THIS FILE.
+// Use EntityManager.hpp instead
 #include <core/Entity.hpp>
 
 using namespace eto;

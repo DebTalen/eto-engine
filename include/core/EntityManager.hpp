@@ -15,6 +15,14 @@ namespace eto
 {
 
 class Entity;
+
+/**
+ *  @brief  Helper class for managing entites and their components
+ *
+ *  Multiple EntityManagers are allowed, however they are all share one context. 
+ *  Right now the context is limited with maximum 64 component types.
+ *  @see Entity
+ */
 class EntityManager
 {
 public:
@@ -22,12 +30,40 @@ public:
 
 	~EntityManager();
 
+	/**
+	 *  @brief  Creates new valid entity 
+	 *
+	 *  Keep in mind that entities without components 
+	 *  can not be retrieved by Entity::has<T>() function
+	 *  @return The new valid entity
+	 */
 	Entity create();
 
+	/**
+	 *  @brief  Creates the vector of new entites
+	 *
+	 *  Keep in mind that entities without components 
+	 *  can not be retrieved by Entity::has<T>() function
+	 *  @param  size Amount of the entities to create
+	 *  @return std::vector<Entity> with new entities
+	 */
 	vector<Entity> create(size_t size);
 
+	/**
+	 *  @brief  Destroys the entity and all related components
+	 *
+	 *  The entity becomes invalid 
+	 *  @param  e The entity to destroy
+	 */
 	void destroy(Entity &e);
 
+	/**
+	 *  @brief  Retrieves all entities with the specified set of components
+	 *
+	 *  @param  ...Components List of the component types to check
+	 *  @return The range of entities with specified components
+	 *  @see Range
+	 */
 	template <typename ...Components>
 	Range with() ;
 private:

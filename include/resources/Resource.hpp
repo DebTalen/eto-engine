@@ -33,7 +33,7 @@ public:
 
 	Id get_id() const { return m_id; }
 
-protected:
+//protected:
 	ResourceHandle m_handle;
 private:
 	static Id s_next_id;

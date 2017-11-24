@@ -118,9 +118,7 @@ T& ComponentManager<T>::add(size_t id, Args&& ...args)
 	ETO_ASSERT( m_indexes[id] == -1 ); // entity with this id shouldn't have T component yet
 
 	m_indexes[id] = next_index();  // find first free memory block or allocate new if there is no free
-//	create_component(m_indexes[id], std::forward<Args&&>(args)...);
-//	k
-	m_data[m_indexes[id]] = { std::forward<Args&&>(args)... };
+	m_data[m_indexes[id]] = T{ std::forward<Args&&>(args)... };
 	return m_data[m_indexes[id]];
 }
 
