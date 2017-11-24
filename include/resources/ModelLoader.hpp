@@ -30,19 +30,19 @@ public:
 	 *  @param  path Path to the model file
 	 *  @return Shared pointer to the loaded Model.
 	 */
-	static SPtr<Model> load(const std::string &path,
-				const SPtr<ShaderProgram> pShader, 
+	static std::shared_ptr<Model> load(const std::string &path,
+				const std::shared_ptr<ShaderProgram> pShader, 
 				int loadingFlags = Flags::FlagTriangulate |
 						   Flags::FlagGenNormals  |
 						   Flags::FlagOptimize  ); 
 private:
 	ModelLoader () {}
 
-	static void processNode(const aiScene *scene, const aiNode *node, SPtr<Model> model, const std::string &path);
+	static void process_node(const aiScene *scene, const aiNode *node, std::shared_ptr<Model> model, const std::string &path);
 
-	static SPtr<Mesh> processMesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
+	static std::shared_ptr<Mesh> process_mesh(const std::string &path, const aiScene *scene, const aiMesh *mesh);
 
-	static void processMaterial(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
+	static void process_material(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path);
 
 };
 

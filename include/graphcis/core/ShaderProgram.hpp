@@ -15,27 +15,27 @@ class ShaderProgram
 public:
 	ShaderProgram ();
 	~ShaderProgram ();
-	void attachShader(const Shader &sd) { glAttachShader(m_program, sd.m_handle.id); }
-	void detachShader(const Shader &sd) { glDetachShader(m_program, sd.m_handle.id); }
+	void attach_shader(const Shader &sd) { glAttachShader(m_program, sd.m_handle.id); }
+	void detach_shader(const Shader &sd) { glDetachShader(m_program, sd.m_handle.id); }
 	void link();
 	void use();
 
-	bool isLinked() const { return m_linked; }
+	bool is_linked() const { return m_linked; }
 
-	std::string getErrorMessage() const { return m_error; }
+	std::string get_error_message() const { return m_error; }
 
 	//GLint getUniformLocation(const std::string &name) { return glGetUniformLocation(m_program, name.c_str()); }
 
 	/** Temporary function */
-	GLuint getRaw() const { return m_program; }
+	GLuint get_raw() const { return m_program; }
 
-	void setInt(const std::string &name, float val);
-	void setFloat(const std::string &name, float val);
-	void setVec2f(const std::string &name, glm::fvec2 vec);
-	void setVec2f(const std::string &name, float x, float y);
-	void setVec3f(const std::string &name, glm::fvec3 vec);
-	void setVec3f(const std::string &name, float x, float y, float z);
-	void setMat4f(const std::string &name, glm::fmat4 mat);
+	void set_int(const std::string &name, float val);
+	void set_float(const std::string &name, float val);
+	void set_vec2f(const std::string &name, glm::fvec2 vec);
+	void set_vec2f(const std::string &name, float x, float y);
+	void set_vec3f(const std::string &name, glm::fvec3 vec);
+	void set_vec3f(const std::string &name, float x, float y, float z);
+	void set_mat4f(const std::string &name, glm::fmat4 mat);
 
 private:
 	GLuint      m_program;

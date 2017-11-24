@@ -4,34 +4,34 @@
 
 using namespace eto;
 
-SPtr<Model> ModelLoader::load(const std::string &path, const SPtr<ShaderProgram> pShader, int loadingFlags)
+std::shared_ptr<Model> ModelLoader::load(const std::string &path, const std::shared_ptr<ShaderProgram> pShader, int loading_flags)
 {
-	SPtr<Model> root =  std::make_shared<Model>(pShader);
+	std::shared_ptr<Model> root =  std::make_shared<Model>(pShader);
 
 	Assimp::Importer imp;
-	const aiScene *scene = imp.ReadFile(path, loadingFlags);
+	const aiScene *scene = imp.ReadFile(path, loading_flags);
 
 	if (scene == NULL || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
-		root->setErrorMessage(imp.GetErrorString());
+		root->set_error_message(imp.GetErrorString());
 		return root;
 	}
 
-	processNode(scene, scene->mRootNode, root, path);
+	process_node(scene, scene->mRootNode, root, path);
 	return root;
 }
 
-void ModelLoader::processNode(const aiScene *scene, const aiNode *node, SPtr<Model> parent, const std::string &path)
+void ModelLoader::process_node(const aiScene *scene, const aiNode *node, std::shared_ptr<Model> parent, const std::string &path)
 {
 	for (uint i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh *m = scene->mMeshes[node->mMeshes[i]];
-		parent->addMesh(processMesh(path, scene, m));
+		parent->add_mesh(process_mesh(path, scene, m));
 	}
 	for (uint i = 0; i < node->mNumChildren; ++i)
-		processNode(scene, node->mChildren[i], parent,  path);
+		process_node(scene, node->mChildren[i], parent,  path);
 }
 
-SPtr<Mesh> ModelLoader::processMesh(const std::string &path, const aiScene *scene, const aiMesh *m)
+std::shared_ptr<Mesh> ModelLoader::process_mesh(const std::string &path, const aiScene *scene, const aiMesh *m)
 {
 	std::vector<Vertex> v;
 	std::vector<uint> ic;
@@ -42,9 +42,9 @@ SPtr<Mesh> ModelLoader::processMesh(const std::string &path, const aiScene *scen
 		vr.normal = {m->mNormals[i].x,  m->mNormals[i].y, m->mNormals[i].z};
 
 		if (m->mTextureCoords[0])
-			vr.texCoord = { m->mTextureCoords[0][i].x, m->mTextureCoords[0][i].y };
+			vr.tex_coord = { m->mTextureCoords[0][i].x, m->mTextureCoords[0][i].y };
 		else
-			vr.texCoord = {0, 0};
+			vr.tex_coord = {0, 0};
 		if (m->mTextureCoords[1])
 			std::cout << "HELLO THERE ARE MORE TEXTURE COORDINATES\n";
 
@@ -58,15 +58,15 @@ SPtr<Mesh> ModelLoader::processMesh(const std::string &path, const aiScene *scen
 			ic.push_back(face->mIndices[j]);
 	}  
 
-	SPtr<Mesh> res = std::make_shared<Mesh>();
-	res->setGeometry(v, ic);
+	std::shared_ptr<Mesh> res = std::make_shared<Mesh>();
+	res->set_geometry(v, ic);
 
 	std::string dir = path.substr(0, path.find_last_of('/'));
 	Material material;
 	aiMaterial *mat = scene->mMaterials[m->mMaterialIndex];
 
-	processMaterial(mat, aiTextureType_DIFFUSE, material, Material::TexDiffuse, dir);
-	processMaterial(mat, aiTextureType_SPECULAR, material, Material::TexSpecular, dir);
+	process_material(mat, aiTextureType_DIFFUSE, material, Material::TexDiffuse, dir);
+	process_material(mat, aiTextureType_SPECULAR, material, Material::TexSpecular, dir);
 
 	aiColor3D color;
 	mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
@@ -76,13 +76,13 @@ SPtr<Mesh> ModelLoader::processMesh(const std::string &path, const aiScene *scen
 	mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
 	material.color_specular = glm::vec3(color.r, color.g, color.b);
 
-	res->setMaterial(material);
+	res->set_material(material);
 	return res;
 }
 
-void ModelLoader::processMaterial(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path)
+void ModelLoader::process_material(const aiMaterial *mat, aiTextureType aiType, Material &material, Material::TextureType type, const std::string &path)
 {
-	AssetLoader loader = AssetLoader::getInstance();
+	AssetLoader loader = AssetLoader::get_instance();
 	for (uint i = 0; i < mat->GetTextureCount(aiType); ++i)
 	{
 		aiString relPath;
@@ -94,7 +94,7 @@ void ModelLoader::processMaterial(const aiMaterial *mat, aiTextureType aiType, M
 			str.insert(0, "/");
 
 		std::cout << relPath.C_Str() << std::endl;
-		SPtr<Texture> texture = loader.load<TextureLoader>(std::string(path + str));
-		material.textures.push_back(pair<Material::TextureType, SPtr<Texture>>(type, texture));
+		std::shared_ptr<Texture> texture = loader.load<TextureLoader>(std::string(path + str));
+		material.textures.push_back(pair<Material::TextureType, std::shared_ptr<Texture>>(type, texture));
 	}
 }

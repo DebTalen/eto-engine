@@ -24,7 +24,7 @@ public:
 	 *  @param  path Path to the texture
 	 *  @return Shared pointer to the texture. Check the isLoaded flag to see if the texture loaded or not.
 	 */
-	static SPtr<Texture> load(const std::string &path);
+	static std::shared_ptr<Texture> load(const std::string &path);
 
 private:
 	TextureLoader ();

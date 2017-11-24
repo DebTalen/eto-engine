@@ -13,21 +13,8 @@ namespace eto
 class Renderable
 {
 public:
-	Renderable (SPtr<Model> model);
-
-	void translate(const glm::vec3 &v);
-
-	void rotate(float degrees, const glm::vec3 &v);
-
-	void scale(const glm::vec3 &v);
-
-	mat4 getTransform() const { return m_transform; }
-	
-	//temorary functions
-	void draw();
-private:
-	SPtr<Model> m_model;
-	mat4 	    m_transform; // model to world matrix
+	std::shared_ptr<Model> model;
+	mat4 transform = mat4(1.0f); // model to world matrix
 };
 
 }

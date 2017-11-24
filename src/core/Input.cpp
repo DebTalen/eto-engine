@@ -2,41 +2,41 @@
 
 using namespace eto;
 
-Input& Input::getInstance()
+Input& Input::get_instance()
 {
 	static Input gInput;
 	return gInput;
 }
 
 Input::Input()
-	: m_window(nullptr)
+	: m_window(nullptr), next_callback_id(0)
 {
 }
 
-void Input::setWindow(const Window &w)
+void Input::set_window(const Window &w)
 {
 	m_window = w.m_window;
-	setupCallbacks();
+	setup_callbacks();
 }
 
-void Input::setupCallbacks()
+void Input::setup_callbacks()
 {	
 	glfwSetWindowUserPointer(m_window, this);
 	// some dark magic from https://stackoverflow.com/questions/7676971/
-	#define genericCallback(functionName)\
+	#define generic_callback(function_name)\
 		[](GLFWwindow *window, auto... args) {\
 			auto ptr = static_cast<Input*>(glfwGetWindowUserPointer(window));\
-			ptr->functionName(args...);\
+			ptr->function_name(args...);\
 		}
 
-	glfwSetKeyCallback(m_window, genericCallback(onKey));
-	glfwSetMouseButtonCallback(m_window, genericCallback(onMouseButton));
-	glfwSetCursorPosCallback(m_window, genericCallback(onCursorPosition));
+	glfwSetKeyCallback(m_window, generic_callback(on_key));
+	glfwSetMouseButtonCallback(m_window, generic_callback(on_mouse_button));
+	glfwSetCursorPosCallback(m_window, generic_callback(on_cursor_position));
 
-	#undef genericCallback
+	#undef generic_callback
 }
 
-void Input::onKey(int key, int scancode, int action, int mods)
+void Input::on_key(int key, int scancode, int action, int mods)
 {
 	GLFWevent event;
 	event.type = GLFWevent::Type::Key;
@@ -48,7 +48,7 @@ void Input::onKey(int key, int scancode, int action, int mods)
 	notify(event.type, event);
 }
 
-void Input::onMouseButton(int button, int action, int mods)
+void Input::on_mouse_button(int button, int action, int mods)
 {
 	GLFWevent event;
 	event.type = GLFWevent::Type::MouseButton;
@@ -59,7 +59,7 @@ void Input::onMouseButton(int button, int action, int mods)
 	notify(event.type, event);
 }
 
-void Input::onCursorPosition(double x, double y)
+void Input::on_cursor_position(double x, double y)
 {
 	GLFWevent event;
 	event.type = GLFWevent::Type::CursorPosition;
@@ -69,55 +69,49 @@ void Input::onCursorPosition(double x, double y)
 	notify(event.type, event);
 }
 
-void Input::addCallback(GLFWevent::Type type, CallbackType callback)
+Input::CallbackId Input::add_callback(GLFWevent::Type type, CallbackType callback)
 {
-	m_observers[type].push_back(callback);
+	CallbackId new_id = next_callback_id++;
+	m_observers[type].push_back({new_id, callback});
+	return new_id;
 }
 
-void Input::removeCallback(GLFWevent::Type type, CallbackType callback)
+void Input::remove_callback(GLFWevent::Type type, CallbackId id)
 {
-	auto getAddress = [](CallbackType foo) {
-		CallbackType ** pFoo = foo.template target<CallbackType*>();
-		return (size_t) *pFoo;
-	};
-	size_t toRemove = getAddress(callback);
-
-	std::map<GLFWevent::Type, std::vector<CallbackType>>::iterator it = m_observers.find(type);
-	auto i = it->second.begin();
-	for (; i != it->second.end(); )
-	{
-		if (getAddress(*i) == toRemove) 
-		{
-			it->second.erase(i);
-			break;
-		}
-	}
+	auto it = m_observers.find(type);
+	if (it == m_observers.end())
+		return;
+	auto &vec = it->second;
+	vec.erase(std::remove_if(vec.begin(), vec.end(), 
+			[id](const pair<CallbackId, CallbackType> &i)	 {
+				 return i.first == id;
+			}));
 }
 
 void Input::notify(GLFWevent::Type t, const GLFWevent &e)
 {
 	auto it = m_observers.find(t);
 	if (it != m_observers.end())
-		for (auto i : it->second)
-			i(e);
+		for (auto const &i : it->second)
+			i.second(e);
 }
 
-bool Input::isKeyPress(input::Key key) const
+bool Input::is_key_press(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Press;
+	return (glfwGetKey(m_window, key) == input::Press);
 }
 
-bool Input::isKeyRelese(input::Key key) const
+bool Input::is_key_release(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Release;
+	return !(glfwGetKey(m_window, key) == input::Release);
 }
 
-bool Input::isKeyHeld(input::Key key) const
+bool Input::is_key_held(input::Key key) const
 {
-	return glfwGetKey(m_window, key) == input::Repeat;
+	return (glfwGetKey(m_window, key) == input::Repeat);
 }
 
-GLFWevent::CursorPositionEvent Input::getCursorPosition() const
+GLFWevent::CursorPositionEvent Input::get_cursor_position() const
 {
 	GLFWevent::CursorPositionEvent e;
 	glfwGetCursorPos(m_window, &e.x, &e.y);

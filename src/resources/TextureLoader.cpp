@@ -3,11 +3,11 @@
 
 using namespace eto;
 
-SPtr<Texture> TextureLoader::load(const std::string &path)
+std::shared_ptr<Texture> TextureLoader::load(const std::string &path)
 {
 	if (path.empty()) {
-		SPtr<Texture> fail = std::make_shared<Texture>();
-		fail->setErrorMessage("Invalid file name");
+		std::shared_ptr<Texture> fail = std::make_shared<Texture>();
+		fail->set_error_message("Invalid file name");
 		return fail;
 	}
 
@@ -15,8 +15,8 @@ SPtr<Texture> TextureLoader::load(const std::string &path)
 	stbi_set_flip_vertically_on_load(true);
 	uchar *pData = stbi_load(path.c_str(), &w, &h, &c, 0);
 	if (pData == NULL) {
-		SPtr<Texture> fail = std::make_shared<Texture>();
-		fail->setErrorMessage("Invalid file name: " + path);
+		std::shared_ptr<Texture> fail = std::make_shared<Texture>();
+		fail->set_error_message("Invalid file name: " + path);
 		return fail;
 	}
 
@@ -30,7 +30,7 @@ SPtr<Texture> TextureLoader::load(const std::string &path)
 
 	std::vector<uchar> data(pData, pData + (w * h * c));
 	stbi_image_free(pData);
-	SPtr<Texture> texture = std::make_shared<Texture>(tp);
+	std::shared_ptr<Texture> texture = std::make_shared<Texture>(tp);
 	texture->write(data);
 	return texture;
 }

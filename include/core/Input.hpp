@@ -6,10 +6,13 @@
 #include <core/GLFWevent.hpp>
 #include <core/Assert.hpp>
 #include <functional>
+#include <algorithm>
 #include <vector>
 #include <map>
 
 using eto::GLFWevent;
+using std::vector;
+using std::pair;
 
 namespace eto
 {
@@ -20,17 +23,18 @@ namespace eto
 class Input 
 {
 public:
-	typedef std::function<void(const GLFWevent&)> CallbackType;
+	using CallbackType = std::function<void(const GLFWevent&)>;
+	using CallbackId = unsigned long;
 
-	/** Returns single instance of the Input class */
-	static Input &getInstance();
+	/** Returns the single instance of the Input class */
+	static Input &get_instance();
 
 	/**
 	 *  @brief  Configures callbacks from specified window
 	 *
 	 *  You should always call this function before using the Input
 	 */
-	void setWindow(const Window &w);
+	void set_window(const Window &w);
 
 	/**
 	 *  @brief  Adds a callback function to the specified event type
@@ -41,7 +45,7 @@ public:
 	 *  @param  type Event type to subscribe 
 	 *  @param  callback The callback function
 	 */
-	void addCallback(GLFWevent::Type type, CallbackType callback);
+	CallbackId add_callback(GLFWevent::Type type, CallbackType callback);
 
 	/**
 	 *  @brief  Removes the specified callback
@@ -49,7 +53,7 @@ public:
 	 *  @param  type Event type to unsubscribe 
 	 *  @param  callback The callback function
 	 */
-	void removeCallback(GLFWevent::Type type, CallbackType callback);
+	void remove_callback(GLFWevent::Type type, CallbackId id);
 
 	/**
 	 *  @brief  Indicates if the key was pressed
@@ -57,7 +61,7 @@ public:
 	 *  @param  key The key code
 	 *  @return True if was pressd and false if not
 	 */
-	bool isKeyPress(input::Key key) const;
+	bool is_key_press(input::Key key) const;
 
 	/**
 	 *  @brief  Indicates if the key was released
@@ -65,7 +69,7 @@ public:
 	 *  @param  key The key code
 	 *  @return True if was released and false if not
 	 */
-	bool isKeyRelese(input::Key key) const;
+	bool is_key_release(input::Key key) const;
 
 	/**
 	 *  @brief  Indicates if the key was held
@@ -73,33 +77,35 @@ public:
 	 *  @param  key The key code
 	 *  @return True if was held and false if not
 	 */
-	bool isKeyHeld(input::Key key) const;
+	bool is_key_held(input::Key key) const;
 
 	/**
 	 *  @brief  Returns the last cursor position
 	 *
 	 *  @return The cursor coordinates on the screen
 	 */
-	GLFWevent::CursorPositionEvent getCursorPosition() const; 
+	GLFWevent::CursorPositionEvent get_cursor_position() const; 
 
 	/** Callback function for handling keyboard input */
-	void onKey(int key, int scancode, int action, int mods);
+	void on_key(int key, int scancode, int action, int mods);
 
 	/** Callback function for handling mouse buttons input */
-	void onMouseButton(int button, int action, int mods);
+	void on_mouse_button(int button, int action, int mods);
 
 	/** Callback function for handling mouse cursor position */
-	void onCursorPosition(double x, double y);
+	void on_cursor_position(double x, double y);
 private:
 	Input(const Window &w);
 	Input();
 
-	void setupCallbacks();
+	void setup_callbacks();
 
 	void notify(GLFWevent::Type t, const GLFWevent &e);
 
-	std::map<GLFWevent::Type, std::vector<CallbackType>> m_observers;
+
+	std::map<GLFWevent::Type, vector<pair<CallbackId, CallbackType>> > m_observers;
 	GLFWwindow *m_window;
+	CallbackId next_callback_id;
 };	
 
 }

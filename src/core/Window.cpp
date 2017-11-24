@@ -5,10 +5,10 @@ using namespace eto;
 
 namespace eto {
 	namespace glfw {
-		bool isActive = glfwInit();
-		bool isAtExit = std::atexit(glfwTerminate);
-		bool GetInit() {
-			return isActive;
+		bool is_active = glfwInit();
+		bool is_at_exit = std::atexit(glfwTerminate);
+		bool get_init() {
+			return is_active;
 		}
 	}
 }
@@ -18,29 +18,13 @@ Window::Window()
 {
 }
 
-/* int Window::create(int w, int h, std::string &title)
-{
-	if (m_window) 
-		return 0;
-	setWinHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	setWinHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	setWinHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	m_window = glfwCreateWindow(w, h, title.c_str(), nullptr, nullptr);
-	if (m_window == NULL)
-		return 0;
-	m_size.x = w;
-	m_size.y = h;
-	prepareCallbacks();
-	return 1;
-} */
-
 int Window::create(int w, int h, const std::string &title, bool fullscreen)
 {
 	if (m_window) 
 		return 0;
-	setWinHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	setWinHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	setWinHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	set_win_hint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	set_win_hint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	set_win_hint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	if (fullscreen)
 		m_window = glfwCreateWindow(w, h, title.c_str(), glfwGetPrimaryMonitor(), NULL);
 	else
@@ -49,7 +33,6 @@ int Window::create(int w, int h, const std::string &title, bool fullscreen)
 		return 0;
 	m_size.x = w;
 	m_size.y = h;
-	prepareCallbacks();
 	return 1;
 }
 
@@ -59,45 +42,45 @@ Window::~Window()
 		glfwDestroyWindow(m_window);
 }
 
-bool Window::shouldClose() const 
+bool Window::should_close() const 
 {
 	return glfwWindowShouldClose(m_window);
 }
 
-void Window::setShouldClose(int value) 
+void Window::set_should_close(int value) 
 {
 	glfwSetWindowShouldClose(m_window, value);
 }
 
-void Window::pollEvents() 
+void Window::poll_events() 
 {
 	glfwPollEvents();
 }
 
-void Window::setWinHint(int code, int value)
+void Window::set_win_hint(int code, int value)
 {
 	glfwWindowHint(code, value);
 }
 
-void Window::setInputMode(int code, int value)
+void Window::set_input_mode(int code, int value)
 {
 	glfwSetInputMode(m_window, code, value);
 }
 
-void Window::setPos(WinPos position)
+void Window::set_pos(WinPos position)
 {
 	m_pos = position;
 	glfwSetWindowPos(m_window, m_pos.x, m_pos.y);
 }
 
-void Window::setPos(int x, int y)
+void Window::set_pos(int x, int y)
 {
 	m_pos.x = x;
 	m_pos.y = y;
 	glfwSetWindowPos(m_window, x, y);
 }
 
-void Window::setSize(WinSize size)
+void Window::set_size(WinSize size)
 {
 	if (size.x > 1 && size.y > 1)
 	{
@@ -106,12 +89,12 @@ void Window::setSize(WinSize size)
 	}
 }
 
-Window::WinPos Window::getPos() const 
+Window::WinPos Window::get_pos() const 
 {
 	return m_pos;
 }
 
-void Window::setSize(int w, int h)
+void Window::set_size(int w, int h)
 {
 	if (w > 1 && h > 1)
 	{
@@ -121,23 +104,7 @@ void Window::setSize(int w, int h)
 	}
 }
 
-Window::WinSize Window::getSize() const 
+Window::WinSize Window::get_size() const 
 {
 	return m_size;
-}
-
-void Window::prepareCallbacks() 
-{
-//	glfwSetWindowUserPointer(m_window, this);
-
-	// some dark magic from https://stackoverflow.com/questions/7676971/
-	/*#define genericCallback(functionName)\
-		[](GLFWwindow *window, auto... args) {\
-			auto ptr = static_cast<Window*>(glfwGetWindowUserPointer(window));\
-			ptr->functionName(args...);\
-		}
-
-	glfwSetKeyCallback(m_window, genericCallback(onKey));
-	glfwSetMouseButtonCallback(m_window, genericCallback(onMouseButton));
-	glfwSetCursorPosCallback(m_window, genericCallback(onCursorPosition)); */
 }

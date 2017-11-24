@@ -7,8 +7,8 @@ using namespace eto;
 Texture::Texture(const TextureProps &tp)
 	: m_tp(tp), m_loaded(0), m_error("")
 {
-	m_dataSize = tp.width * tp.height * tp.depth;
-	m_dataSize *= (tp.format == Image::Format::Tex_RGB) ? 3 : 4;
+	m_data_size = tp.width * tp.height * tp.depth;
+	m_data_size *= (tp.format == Image::Format::Tex_RGB) ? 3 : 4;
 }
 
 Texture::~Texture()
@@ -19,7 +19,7 @@ Texture::~Texture()
 
 void Texture::write(const std::vector<uchar> &data)
 {
-	if (data.size() != m_dataSize) {
+	if (data.size() != m_data_size) {
 		m_error = "Writing error: data size is invalid";
 		return;
 	}
@@ -31,7 +31,7 @@ void Texture::write(const std::vector<uchar> &data)
 	using namespace eto::Image;
 	const GLvoid *pData = static_cast<const GLvoid*>(data.data());
 
-	GLint pId = getPrevTexBind();
+	GLint p_id = get_prev_tex_bind();
 	glBindTexture(m_tp.type, m_handle.id);
 	glGetError();
 	switch (m_tp.type)
@@ -51,16 +51,16 @@ void Texture::write(const std::vector<uchar> &data)
 		m_error = "Error writing data to the texture: " + std::to_string(err);
 		m_loaded = false;
 	}
-	glBindTexture(m_tp.type, pId);
+	glBindTexture(m_tp.type, p_id);
 }
 
 void Texture::read(std::vector<uchar> &data)
 {
 	if (m_loaded)
 	{
-		GLint pId = getPrevTexBind();
+		GLint pId = get_prev_tex_bind();
 		glBindTexture(m_tp.type, m_handle.id);
-		data.resize(m_dataSize);
+		data.resize(m_data_size);
 		glGetTexImage(m_tp.type, 0, m_tp.format, GL_UNSIGNED_BYTE, static_cast<GLvoid*>(data.data()));
 		glBindTexture(m_tp.type, pId);
 	}
@@ -72,7 +72,7 @@ int Texture::load(const std::vector<uchar> &data)
 {
 	using namespace eto::Image;
 
-	GLint pId = getPrevTexBind();
+	GLint pId = get_prev_tex_bind();
 	glGenTextures(1, &m_handle.id);
 	glBindTexture(m_tp.type, m_handle.id);
 
@@ -89,7 +89,7 @@ int Texture::load(const std::vector<uchar> &data)
 		case Type::Tex_3D:
 			glTexImage3D(m_tp.type, 0, m_tp.format, m_tp.width, m_tp.height, m_tp.depth, 0, m_tp.format, GL_UNSIGNED_BYTE, pData);
 	}
-	if (m_tp.isMipmap)
+	if (m_tp.is_mipmap)
 		glGenerateMipmap(m_tp.type);
 	glBindTexture(m_tp.type, pId);
 
@@ -101,7 +101,7 @@ int Texture::load(const std::vector<uchar> &data)
 	return true;
 }
 
-GLint Texture::getPrevTexBind() 
+GLint Texture::get_prev_tex_bind() 
 {
 	GLint pId = 0;
 	if (m_tp.type == Image::Tex_1D)

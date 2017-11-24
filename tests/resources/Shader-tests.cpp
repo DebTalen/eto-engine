@@ -19,9 +19,9 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(VertexShader);
 		s.compile(src);
-		CHECK ( s.isCompiled() );
-		if (! s.isCompiled() )
-			FAIL( s.getErrorMessage() );
+		CHECK ( s.is_compiled() );
+		if (! s.is_compiled() )
+			FAIL( s.get_error_message() );
 	}
 	SECTION("Invalid vertex shader")
 	{
@@ -29,7 +29,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(VertexShader);
 		s.compile(src);
-		REQUIRE_FALSE( s.isCompiled() );
+		REQUIRE_FALSE( s.is_compiled() );
 	}
 	SECTION("Valid fragment shader")
 	{
@@ -39,9 +39,9 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(FragmentShader);
 		s.compile(src);
-		CHECK ( s.isCompiled() );
-		if (! s.isCompiled() )
-			FAIL( s.getErrorMessage() );
+		CHECK ( s.is_compiled() );
+		if (! s.is_compiled() )
+			FAIL( s.get_error_message() );
 	}
 	SECTION("Invalid fragment shader")
 	{
@@ -49,7 +49,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(FragmentShader);
 		s.compile(src);
-		REQUIRE_FALSE( s.isCompiled() );
+		REQUIRE_FALSE( s.is_compiled() );
 	}
 	SECTION("Valid geometry shader")
 	{
@@ -58,9 +58,9 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(GeometryShader);
 		s.compile(src);
-		CHECK ( s.isCompiled() );
-		if (! s.isCompiled() )
-			INFO( s.getErrorMessage() );
+		CHECK ( s.is_compiled() );
+		if (! s.is_compiled() )
+			INFO( s.get_error_message() );
 	}
 	SECTION("Invalid geometry shader")
 	{
@@ -68,7 +68,7 @@ TEST_CASE("Shader is loaded", "[Shader]")
 
 		Shader s(GeometryShader);
 		s.compile(src);
-		REQUIRE_FALSE( s.isCompiled() );
+		REQUIRE_FALSE( s.is_compiled() );
 	}
 }
 

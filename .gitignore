@@ -1,0 +1,16 @@
+**/build
+**/docs
+**/Assimp
+**/glm
+**/glfw
+**/assets
+**/.undodir
+*.[oa]
+*.swp
+*.so
+*~
+.ycm_extra_conf.py
+.bps
+Doxyfile
+Session.vim
+main.cpp

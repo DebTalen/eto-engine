@@ -8,11 +8,6 @@
 namespace eto
 {
 
-template <typename T>
-using SPtr = std::shared_ptr<T>;
-template <typename T>
-using WPtr = std::weak_ptr<T>;
-
 /**
  *  @brief  Class for loading resources
  *
@@ -52,7 +47,7 @@ public:
 			return pRes;
 		}
 		auto pRes = TLoader::load(path, args...);
-		m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
+		m_loaded.insert( std::pair<std::size_t, std::weak_ptr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
 		return pRes;
 	}
 
@@ -77,7 +72,7 @@ public:
 		if (iter != m_loaded.end())
 			iter->second = std::static_pointer_cast<Resource>(pRes);
 		else
-			m_loaded.insert( std::pair<std::size_t, WPtr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
+			m_loaded.insert( std::pair<std::size_t, std::weak_ptr<Resource>>(h, std::static_pointer_cast<Resource>(pRes)) );
 		return pRes;
 	}
 
@@ -87,11 +82,11 @@ public:
 	 void clear();
 	 */
 	 
-	static AssetLoader &getInstance();
+	static AssetLoader &get_instance();
 private:
 	AssetLoader();
 
-	std::map<std::size_t, WPtr<Resource>> m_loaded;
+	std::map<std::size_t, std::weak_ptr<Resource>> m_loaded;
 };
 
 }

@@ -27,13 +27,13 @@ public:
 
 	std::size_t write(const void *buffer, std::size_t count);
 
-	std::size_t getSize() const { return m_size; } 
+	std::size_t get_size() const { return m_size; } 
 
 	void close();
 
-	bool isReadable() const { return (m_mode & AccessMode::Read); }
-	bool isWritable() const { return (m_mode & AccessMode::Write); }
-	bool isOpen() const { return m_open; }
+	bool is_readable() const { return (m_mode & AccessMode::Read); }
+	bool is_writable() const { return (m_mode & AccessMode::Write); }
+	bool is_open() const { return m_open; }
 private:
 	std::fstream m_fs;
 	std::size_t  m_size;

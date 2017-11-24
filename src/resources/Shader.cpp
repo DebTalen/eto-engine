@@ -24,8 +24,9 @@ void Shader::compile(const std::string &src)
 	{
 		GLint logSize = 0;
 		glGetShaderiv(m_handle.id, GL_INFO_LOG_LENGTH, &logSize);
-		GLchar log[logSize];
+		GLchar *log = new GLchar[logSize];
 		glGetShaderInfoLog(m_handle.id, logSize, NULL, log);
 		m_error = log;
+		delete[] log;
 	}
 }

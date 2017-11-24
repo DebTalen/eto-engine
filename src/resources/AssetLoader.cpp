@@ -6,7 +6,7 @@ AssetLoader::AssetLoader()
 {
 }
 
-AssetLoader &AssetLoader::getInstance()
+AssetLoader &AssetLoader::get_instance()
 {
 	static AssetLoader loader;
 	return loader;

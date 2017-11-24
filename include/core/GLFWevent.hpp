@@ -18,9 +18,9 @@ enum Modifier
 
 enum Action 
 {
-	Press,
-	Release,
-	Repeat
+	Repeat = GLFW_REPEAT,
+	Press = GLFW_PRESS,
+	Release = GLFW_RELEASE
 };
 
 enum MouseButton

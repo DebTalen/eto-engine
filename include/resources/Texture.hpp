@@ -6,11 +6,10 @@
 #include <vector>
 #include <glad/glad.h>
 
+typedef unsigned char uchar;
+typedef unsigned int uint;
 namespace eto
 {
-template <typename T>
-using SPtr = std::shared_ptr<T>;
-typedef unsigned char uchar;
 
 namespace Image
 {
@@ -47,11 +46,15 @@ public:
 		uint   	      width = 1;
 		uint          height = 1;
 		uint	      depth = 1;
-		bool          isMipmap = 1;
+		bool          is_mipmap = 1;
 		TextureProps() {}
 	};
 
 	explicit Texture(const TextureProps &tp = {});
+
+	Texture(const Texture &rhs) = delete;
+
+	Texture &operator= (const Texture &rhs) = delete;
 
 	~Texture();
 
@@ -69,29 +72,15 @@ public:
 	 */
 	void read(std::vector<uchar> &data);
 
-	uint getWidth() const { return m_tp.width; }
-	uint getHeight() const { return m_tp.height; }
-	uint getDepth() const { return m_tp.depth; }
-	uint getComponents() const { return (m_tp.format == Image::Format::Tex_RGB) ? 3 : 4; }
-	bool isLoaded() const { return m_loaded; }
-	bool isMipmaped() const { return m_tp.isMipmap; }
-	std::size_t getDataSize() const { return m_dataSize; }
-	std::string getErrorMessage() const { return m_error; }
-private:
-	Texture(const Texture &rhs) = delete;
-	Texture &operator= (const Texture &rhs) = delete;
 
 	int load(const std::vector<uchar> &data); 
-	GLint getPrevTexBind();
+	GLint get_prev_tex_bind();
 
-	// temporary, should be replaced by Renderer
-	friend class Renderable;
-	friend class TextureLoader;
-	void setErrorMessage(const std::string &error) { m_error = error; }
+	void set_error_message(const std::string &error) { m_error = error; }
 
 	TextureProps m_tp;
 	bool	     m_loaded;
-	std::size_t  m_dataSize;
+	std::size_t  m_data_size;
 	std::string  m_error;
 };
 }
