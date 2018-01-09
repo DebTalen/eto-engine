@@ -52,8 +52,12 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+
+	//glfwSwapInterval(0); // disable vsync and fixed frame rate
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
-	//	glfwSwapInterval(0); // disable vsync and fixed frame rate
+	glDepthFunc(GL_LESS); 
+	glEnable(GL_CULL_FACE);
 
 	AssetLoader loader = AssetLoader::get_instance();
 	std::shared_ptr<ShaderProgram> sd = std::make_shared<ShaderProgram>();
@@ -113,14 +117,13 @@ int main()
 	camera.add<Camera>(vec2(w.get_size().x, w.get_size().y), vec3(-3, 0, -3));
 	Entity light = world.create();
 	light.add<Light>(Light::Directional, vec3(0), vec3(0, -2, 0));
-	
+
 	Entity model = world.create();
 	{
 		auto &r = model.add<Renderable>(cake_model);
 		r.transform = glm::scale(r.transform, vec3(2.02));
 	}
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	float d = 0;
 	float dd = 0.05;

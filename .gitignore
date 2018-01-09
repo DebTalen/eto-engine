@@ -1,8 +1,5 @@
 **/build
 **/docs
-**/Assimp
-**/glm
-**/glfw
 **/assets
 **/.undodir
 *.[oa]

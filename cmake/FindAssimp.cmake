@@ -59,6 +59,8 @@ else()
 			/sw/lib
 			/opt/local/lib
 			${ASSIMP_ROOT_DIR}/lib
+			${ASSIMP_ROOT_DIR}/build
+			${ASSIMP_ROOT_DIR}/build/code
 		DOC "The Assimp library")
 endif()
 

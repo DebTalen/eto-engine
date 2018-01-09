@@ -1,0 +1,12 @@
+[submodule "3rd_party/glm"]
+	path = 3rd_party/glm
+	url = https://github.com/g-truc/glm
+[submodule "3rd_party/glfw"]
+	path = 3rd_party/glfw
+	url = https://github.com/glfw/glfw
+[submodule "3rd_party/Catch2"]
+	path = 3rd_party/Catch2
+	url = https://github.com/catchorg/Catch2
+[submodule "3rd_party/loguru"]
+	path = 3rd_party/loguru
+	url = https://github.com/emilk/loguru

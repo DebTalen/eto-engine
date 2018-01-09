@@ -10,23 +10,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${THIRD_PARTY_DIR})
 add_subdirectory(${THIRD_PARTY_DIR})
 
-# GLM
 set(GLM_ROOT_DIR "${THIRD_PARTY_DIR}/glm")
-find_package(GLM REQUIRED)
-include_directories(${GLM_INCLUDE_DIR})
-
-# GLFW
 set(GLFW_ROOT_DIR "${THIRD_PARTY_DIR}/glfw")
-if(WIN32)
-	set(GLFW_USE_STATIC_LIBS "1")
-endif()
-find_package(GLFW REQUIRED)
+include(${THIRD_PARTY_DIR}/3rd_party.cmake)
+include_directories(${GLM_INCLUDE_DIR})
 include_directories(${GLFW_INCLUDE_DIR})
-
-# Assimp
-set(ASSIMP_ROOT_DIR "${THIRD_PARTY_DIR}/Assimp")
-find_package(Assimp REQUIRED)
-include_directories(${ASSIMP_INCLUDE_DIR})
 
 # bad way to grab files
 file (GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/*.hpp)
@@ -35,7 +23,7 @@ file (GLOB_RECURSE sources_tests ${PROJECT_SOURCE_DIR}/tests/*.cpp)
 # set (COMMON_DEPS "pthread" "X11" "glfw" "dl" "glad" "stb_image" "stb_image_write" "assimp")
 # building lib
 add_library (eto ${sources})
-target_link_libraries(eto glad stb_image ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})
+target_link_libraries(eto glad stb_image ${GLFW_LIBRARIES})
 if(NOT WIN32)
 	target_compile_options (eto PUBLIC -g -std=c++14 -pedantic -Wall -Wextra)
         target_link_libraries(eto dl)
