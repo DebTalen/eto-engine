@@ -1,9 +1,8 @@
 #define CATCH_CONFIG_RUNNER
-#include <catch/catch.hpp>
+#include <catch.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#define ETO_ASSERTIONS_ENABLED
 #include <core/Assert.hpp>
 
 int main( int argc, char *argv[] )
@@ -17,8 +16,9 @@ int main( int argc, char *argv[] )
 	glfwMakeContextCurrent(w);
 	if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))  
 		FAIL( "Failed to load GLAD");
-	
-	int result = Catch::Session().run( argc, argv );
+
+	Catch::Session session;
+	int result = session.run( argc, argv );
 
 	glfwDestroyWindow(w);
 	glfwTerminate();

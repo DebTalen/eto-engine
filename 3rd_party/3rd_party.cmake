@@ -25,7 +25,7 @@ else()
 endif()
 
 # add catch
-set(CATCH_INCLUDE_DIR "${THIRD_PARTY_DIR}/Catch2")
+set(CATCH_INCLUDE_DIR "${THIRD_PARTY_DIR}/Catch2/single_include")
 
 if ((NOT CATCH_INCLUDE_DIR) OR (NOT EXISTS ${CATCH_INCLUDE_DIR}))
 	message ("Unable to find CATCH library, trying to fetch from the github")
@@ -33,7 +33,7 @@ if ((NOT CATCH_INCLUDE_DIR) OR (NOT EXISTS ${CATCH_INCLUDE_DIR}))
 	execute_process(COMMAND git submodule update --init -- 3rd_party/Catch2
 			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-	set(CATCH_INCLUDE_DIR "${THIRD_PARTY_DIR}/Catch2/include"
+	set(CATCH_INCLUDE_DIR "${THIRD_PARTY_DIR}/Catch2/single_include"
 		CACHE PATH "catch include directory")
 else()
 	message("CATCH FOUND")

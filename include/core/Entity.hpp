@@ -1,13 +1,12 @@
 #ifndef ETO_ENTITY_HPP
 #define ETO_ENTITY_HPP
 #include <cstddef>
+#include <core/ComponentManager.hpp>
 
-// I strongly do not recomend to include this file. Include EntityManager.hpp instead.
 namespace eto 
 {
 
 class EntityManager;
-
 
 /**
  *  @brief  Represents every game object 
@@ -23,12 +22,7 @@ class EntityManager;
 class Entity
 {
 public:
-	using eid = size_t;
-
-	// create entities via EntityManager::create()
-	Entity(EntityManager &manager, eid id);
-
-	Entity(Entity &&rhs);
+	Entity(const Entity &&rhs);
 
 	/**
 	 *  @brief  Adds component of the specified type to the entity
@@ -87,22 +81,53 @@ public:
 	 */
 	void destroy();
 
-	bool operator==(const Entity &rhs);
-	bool operator!=(const Entity &rhs);
+	bool operator==(const Entity &rhs) const;
+	bool operator!=(const Entity &rhs) const;
+
 private:
-	Entity(const Entity &rhs);
+	Entity(EntityManager &emanager, ComponentManager &cmanager, eid id); 
 
-	Entity& operator=(const Entity &rhs);
+	Entity(const Entity &rhs) = delete;
 
-	EntityManager *m_manager;
+	Entity& operator=(const Entity &rhs) = delete;
+
+	Entity(EntityManager &&, ComponentManager &&, eid) = delete; // prevents references to temporary objects
+
 	eid  m_id;
 	bool m_valid;
+	EntityManager 	 &m_emanager;
+	ComponentManager &m_cmanager;
 
 	friend class EntityManager;
 	friend class Iterator;
 };
 
-#include <core/Entity.i>
+template <typename T, typename ...Args>
+inline T& Entity::add(Args&& ...args)
+{
+        ETO_ASSERT (m_valid);
+        return m_cmanager.create_component<T>(m_id, std::forward<Args>(args)...);
+}
+
+template <typename T>
+inline T& Entity::get() const 
+{
+        ETO_ASSERT (m_valid);
+        return m_cmanager.get_component<T>(m_id);
+}
+
+template <typename T>
+inline void Entity::remove() 
+{ 
+        ETO_ASSERT (m_valid);
+        m_cmanager.remove_component<T>(m_id);
+}
+
+template <typename ...Components>
+inline bool Entity::has() const 
+{
+        return m_cmanager.has<Components...>(m_id);
+}
 
 }
 

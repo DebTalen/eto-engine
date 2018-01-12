@@ -1,5 +1,6 @@
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include <core/EntityManager.hpp>
+#include <core/Entity.hpp>
 #include <string>
 #include <algorithm>
 
@@ -52,6 +53,7 @@ public:
 	{ }
 	float num;
 };
+
 TEST_CASE("Components are added and removed", "[EntityManger]")
 {
  	EntityManager w;

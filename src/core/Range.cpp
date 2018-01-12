@@ -2,30 +2,30 @@
 
 using namespace eto;
 
-Range::Range(EntityManager &manager, mask_t mask)
-        : m_manager(&manager), m_mask(mask)
+Range::Range(EntityManager &em, ComponentManager &cm, mask_t mask)
+        : m_em(em), m_cm(cm), m_mask(mask)
 {
 
 }
 
-Range::iterator Range::begin() 
+Iterator Range::begin() 
 {
-        return Iterator(*m_manager, m_mask, 1);
+        return Iterator(m_em, m_cm, m_mask, 1);
 }
 
-Range::iterator Range::end()
+Iterator Range::end()
 {
-        return Iterator(*m_manager, m_mask, 0);
+        return Iterator(m_em, m_cm, m_mask, 0);
 }
 
-Range::iterator Range::begin() const 
+Iterator Range::begin() const 
 {
-        return Iterator(*m_manager, m_mask, 1);
+        return Iterator(m_em, m_cm, m_mask, 1);
 }
 
-Range::iterator  Range::end() const 
+Iterator  Range::end() const 
 {
-        return Iterator(*m_manager, m_mask, 0);
+        return Iterator(m_em, m_cm, m_mask, 0);
 }
 
 std::size_t Range::count() const 

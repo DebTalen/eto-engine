@@ -15,6 +15,7 @@ set(GLFW_ROOT_DIR "${THIRD_PARTY_DIR}/glfw")
 include(${THIRD_PARTY_DIR}/3rd_party.cmake)
 include_directories(${GLM_INCLUDE_DIR})
 include_directories(${GLFW_INCLUDE_DIR})
+include_directories(${CATCH_INCLUDE_DIR})
 
 # bad way to grab files
 file (GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/*.hpp)
@@ -32,8 +33,8 @@ else()
 endif()
 
 #building example
-set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-configure_file(main.cxx ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+# set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+# configure_file(main.cxx ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 add_executable (example main.cpp)
 if(NOT WIN32)
 	target_compile_options (example PUBLIC -g -std=c++14 -Wall -Wextra)
@@ -43,6 +44,7 @@ endif()
 target_link_libraries(example eto)
 
 add_executable(tests ${sources_tests})
+target_compile_options (tests PUBLIC -std=c++14 -pedantic -Wall -Wextra)
 target_link_libraries(tests eto)
 
 if(WIN32)

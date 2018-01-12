@@ -1,12 +1,12 @@
-#include <catch/catch.hpp>
-#include <core/ComponentManager.hpp>
+#include <catch.hpp>
+#include <core/ComponentPool.hpp>
 #include <vector>
 
 using namespace eto;
 
-TEST_CASE("Component manager with basic type", "[ComponentManager]")
+TEST_CASE("Component manager with basic type", "[ComponentPool]")
 {
-	ComponentManager<int> m;
+	ComponentPool<int> m;
 	for (int i = 0; i < 100; ++i)
 		m.add(i, i);
 
@@ -35,9 +35,9 @@ bool operator==(const TestPOD &lhs, const TestPOD &rhs){
 		 lhs.vfloats == rhs.vfloats );
 }
 
-TEST_CASE("Componen manager with POD type", "[ComponentManager]")
+TEST_CASE("Componen manager with POD type", "[ComponentPool]")
 {
-	ComponentManager<TestPOD> m(100);
+	ComponentPool<TestPOD> m(100);
 	TestPOD sample1 = { ~1, '&', { 0.11, 1, -13.3, 5.666 } };
 	TestPOD sample2 = { 444, 'w', { } };
 	
@@ -65,9 +65,9 @@ public:
 	float num;
 };
 
-TEST_CASE("Component manager with contructors", "[ComponentManager]")
+TEST_CASE("Component manager with contructors", "[ComponentPool]")
 {
- 	ComponentManager<TestClassCompManager> m(100);
+ 	ComponentPool<TestClassCompManager> m(100);
 	float sample1 = 0.000000013;
 	float sample2 = -3;
 

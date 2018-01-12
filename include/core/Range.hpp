@@ -7,25 +7,28 @@
 using mask_t = std::uint64_t;
 namespace eto 
 {
-
 class EntityManager;
+class ComponentManager;
+
 class Range 
 {
 public:
-        using iterator = Iterator;
+        Range(EntityManager &em, ComponentManager &cm, mask_t mask);
 
-        Range(EntityManager &manager, mask_t mask);
+        Iterator begin();
 
-        iterator begin();
-        iterator end();
-        iterator begin() const;
-        iterator end() const;
+        Iterator end();
+
+        Iterator begin() const;
+
+        Iterator end() const;
 
         std::size_t count() const;
 
 private:
-        EntityManager *m_manager;
-        mask_t         m_mask;
+        EntityManager    &m_em;
+        ComponentManager &m_cm;
+        mask_t m_mask;
 };
 
 }

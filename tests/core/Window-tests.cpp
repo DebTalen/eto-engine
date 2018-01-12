@@ -1,6 +1,6 @@
 #include <string>
 #include <GLFW/glfw3.h>
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include <core/Window.hpp>
 
 using namespace eto;

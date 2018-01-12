@@ -10,11 +10,12 @@ namespace eto
 {
 class Entity;
 class EntityManager;
+class ComponentManager;
 
 class Iterator : public std::iterator<std::forward_iterator_tag, Entity>
 {
 public:
-	Iterator(EntityManager &manager, mask_t mask, bool begin = true);
+	Iterator(EntityManager &em, ComponentManager &cm, mask_t mask, bool begin = true);
 
 	Iterator(const Iterator &it) = default;
 
@@ -37,7 +38,8 @@ public:
 private:
 	void find_next();
 
-	EntityManager *m_manager;
+	EntityManager 	 &m_em;
+	ComponentManager &m_cm;
 	std::size_t m_size;
 	std::size_t m_index;
 	mask_t m_mask;

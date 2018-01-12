@@ -17,12 +17,13 @@ namespace eto
 class Entity;
 
 /**
- *  @brief  Helper class for managing entites and their components
+ *  @brief  Helper class for managing entites 
  *
  *  Multiple EntityManagers are allowed, however they are all share one context. 
  *  Right now the context is limited with maximum 64 component types.
  *  @see Entity
  */
+
 class EntityManager
 {
 public:
@@ -66,36 +67,24 @@ public:
 	 */
 	template <typename ...Components>
 	Range with() ;
+
 private:
-	friend class Entity;
-	friend class Iterator;
-
-	template <typename T, typename ...Args>
-	T &create_component(const Entity &e, Args&& ...args);
-
-	template <typename T>
-	T &get_component(const Entity &e);
-
-	template <typename T>
-	void remove_component(const Entity &e);
-
-	template <typename T>
-	ComponentManager<T>* get_component_manager();
-
-	template <typename ...Components>
-	bool has(const Entity &e) const;
-
 	size_t find_next_id();
 
-	std::map<size_t, BaseManager*> m_managers;
-	vector<mask_t>       m_masks;
-	stack<size_t>        m_free_ids;
-	size_t 		     m_index;
+	std::size_t 	 m_index;
+	stack<size_t>    m_free_ids;
+	ComponentManager m_cmanager;
 };
 
+
+
+template <typename ...T>
+Range EntityManager::with() 
+{
+        return Range(*this, m_cmanager, details::component_mask<T...>()); 
 }
 
-#include <core/EntityManager.i>
+}
 
 #endif
 
