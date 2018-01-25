@@ -4,9 +4,10 @@
 //#include <GLFW/glfw3.h>
 #include <queue> 
 #include <string>
-#include <core/GLFWevent.hpp>
+#include <internal/GLFWevent.hpp>
 
 namespace eto {
+namespace internal {
 
 namespace glfw {
 	bool get_init();
@@ -85,6 +86,8 @@ private:
 	WinPos  	      m_pos;
 
 }; // end of class Window  
+
 } // namespace eto
+} // namespace internal
 
 #endif // ETO_WINDOW_HPP

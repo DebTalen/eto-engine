@@ -1,6 +1,6 @@
-#include <core/Input.hpp>
+#include <internal/Input.hpp>
 
-using namespace eto;
+using namespace eto::internal;
 
 Input& Input::get_instance()
 {

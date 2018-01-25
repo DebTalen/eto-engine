@@ -1,22 +1,24 @@
 #ifndef ETO_ENTITY_HPP
 #define ETO_ENTITY_HPP
+
 #include <cstddef>
 #include <core/ComponentManager.hpp>
 
-namespace eto 
-{
+namespace eto {
+namespace core {
 
 class EntityManager;
 
 /**
- *  @brief  Represents every game object 
+ *  @brief  Represents a game object 
  *
  *  Entities consist of the components. 
  *  The component can be any type from build-in types to user-defined ones.
  *  No inhertance needed. If the component is a class, than it must have a default constructor or 
  *  a constructor with default values to all of its arguments.
- *  Entities must be created via EntityManager
- *  Coping entity is currently unavaliable 
+ *  Entities must be created via EntityManager.
+ *  Use Entity::has<C>() to check whether entity has the component of type C or not.
+ *  Coping entity is currently firbidden.
  *  @see EntityManager
  */
 class Entity
@@ -28,10 +30,9 @@ public:
 	 *  @brief  Adds component of the specified type to the entity
 	 *
 	 *  Only one component per type is allowed.
-	 *  Use Entity::has<C>() to check whether entity has the component of type C or not.
 	 *  @param  T Type of the component to add
 	 *  @param  ...Args Optional arguments to initialize the component
-	 *  @return Reference to the created component
+	 *  @return A reference to the created component
 	 */
 	template <typename T, typename ...Args>
 	T& add(Args&& ...args);
@@ -40,9 +41,8 @@ public:
 	 *  @brief  Retrieves the specified component from the entity
 	 *
 	 *  Entity must have the component of specified type.
-	 *  Use Entity::has<C>() to check whether entity has the component of type C or not.
 	 *  @param  T Type of the component to retrieve
-	 *  @return Reference to the component
+	 *  @return A reference to the component
 	 */
 	template <typename T>
 	T& get() const;
@@ -51,7 +51,6 @@ public:
 	 *  @brief  Removes the specified component from the entity
 	 *
 	 *  Entity must have the component of specified type.
-	 *  Use Entity::has<C>() to check whether entity has the component of type C or not.
 	 *  @param  T Type of the component to remove
 	 */
 	template <typename T>
@@ -60,7 +59,7 @@ public:
 	/**
 	 *  @brief  Checks the presence of the specified components
 	 *
-	 *  @param  ...Components List of the component types to check
+	 *  @param  ...Components A list of the component types to check
 	 *  @return true if the entity has all of these components, otherwise false
 	 */
 	template <typename ...Components>
@@ -84,12 +83,10 @@ public:
 	bool operator==(const Entity &rhs) const;
 	bool operator!=(const Entity &rhs) const;
 
+	Entity(const Entity &rhs) = delete;
+	Entity& operator=(const Entity &rhs) = delete;
 private:
 	Entity(EntityManager &emanager, ComponentManager &cmanager, eid id); 
-
-	Entity(const Entity &rhs) = delete;
-
-	Entity& operator=(const Entity &rhs) = delete;
 
 	Entity(EntityManager &&, ComponentManager &&, eid) = delete; // prevents references to temporary objects
 
@@ -129,6 +126,7 @@ inline bool Entity::has() const
         return m_cmanager.has<Components...>(m_id);
 }
 
-}
+} // namespace core
+} // namespace eto
 
 #endif

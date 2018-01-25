@@ -1,9 +1,9 @@
 #include <string>
 #include <GLFW/glfw3.h>
 #include <catch.hpp>
-#include <core/Window.hpp>
+#include <internal/Window.hpp>
 
-using namespace eto;
+using namespace eto::internal;
 
 TEST_CASE("Window is created", "[Window]") {
 	Window w;

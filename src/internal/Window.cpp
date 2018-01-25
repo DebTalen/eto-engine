@@ -1,7 +1,7 @@
-#include <core/Window.hpp>
+#include <internal/Window.hpp>
 #include <cstdlib>
 
-using namespace eto;
+using namespace eto::internal;
 
 namespace eto {
 	namespace glfw {

@@ -1,10 +1,11 @@
 #include <catch.hpp>
-#include <core/EntityManager.hpp>
-#include <core/Entity.hpp>
-#include <string>
 #include <algorithm>
+#include <string>
 
-using namespace eto;
+#include <core/Entity.hpp>
+#include <core/EntityManager.hpp>
+
+using namespace eto::core;
 
 TEST_CASE("Entities are created and destroyed", "[EntityManager]")
 {

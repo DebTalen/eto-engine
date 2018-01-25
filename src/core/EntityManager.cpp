@@ -2,7 +2,7 @@
 #include <core/ComponentManager.hpp>
 #include <core/Entity.hpp>
 
-using namespace eto;
+using namespace eto::core;
 
 EntityManager::EntityManager() 
 	: m_index(0)
@@ -34,6 +34,7 @@ std::vector<Entity> EntityManager::create(size_t amount)
 
 size_t EntityManager::find_next_id()
 {
+        std::lock_guard<std::mutex> lk(m_mutex);
         if (m_free_ids.size())
         {
                 size_t id = m_free_ids.top();
@@ -45,6 +46,7 @@ size_t EntityManager::find_next_id()
 
 void EntityManager::destroy(Entity &e)
 {
+        std::lock_guard<std::mutex> lk(m_mutex);
         if (! e.m_valid)
                 return;
         ETO_ASSERT(e.m_id < m_index);

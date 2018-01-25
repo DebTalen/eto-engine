@@ -4,13 +4,13 @@
 #include <vector>
 #include <deque>
 #include <cstdint>
-#include <core/Assert.hpp>
+#include <internal/Assert.hpp>
 
 using std::vector;
 using mask_t = std::uint64_t; // limited by 64 components per entity
 
-namespace eto 
-{
+namespace eto {
+namespace core {
 
 namespace details
 {
@@ -64,7 +64,7 @@ public:
 	/**
 	 *  @brief  Creates new element for the given id with specified arguments
 	 *
-	 *  There can be only one component per id
+	 *  There can be only one component per id.
 	 *  @param  id Entity id to which to add component
 	 *  @return Reference to the created component
 	 */
@@ -74,7 +74,8 @@ public:
 	/**
 	 *  @brief  Retrives component for the given id
 	 *
-	 *  The specified id must have component of this type
+	 *  The specified id must have component of this type.
+         *  Thread-safe.
 	 *  @param  id Entity id to get component form
 	 *  @return Reference to the comonent
 	 */
@@ -83,7 +84,7 @@ public:
 	/**
 	 *  @brief  Removes component for the given id
 	 *
-	 *  The specified id must have component of this type
+	 *  The specified id must have component of this type.
 	 *  @param  id Entity id to remove component from
 	 */
 	virtual void remove(size_t id) override;
@@ -157,6 +158,7 @@ int ComponentPool<T>::next_index()
 	return new_id;
 }
 
-}
+} // namespace core
+} // namespace eto
 
 #endif 

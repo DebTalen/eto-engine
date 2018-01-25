@@ -1,7 +1,7 @@
 #ifndef ETO_ENTITYMANAGER_HPP
 #define ETO_ENTITYMANAGER_HPP
 
-#include <core/Assert.hpp>
+#include <internal/Assert.hpp>
 #include <core/ComponentManager.hpp>
 #include <core/Range.hpp>
 #include <vector>
@@ -11,19 +11,18 @@
 using std::vector;
 using std::stack;
 
-namespace eto 
-{
+namespace eto {
+namespace core {
 
 class Entity;
 
 /**
- *  @brief  Helper class for managing entites 
+ *  @brief  Class for managing entites 
  *
  *  Multiple EntityManagers are allowed, however they are all share one context. 
- *  Right now the context is limited with maximum 64 component types.
+ *  Currently, the context is limited with maximum 64 component types.
  *  @see Entity
  */
-
 class EntityManager
 {
 public:
@@ -35,8 +34,8 @@ public:
 	 *  @brief  Creates new valid entity 
 	 *
 	 *  Keep in mind that entities without components 
-	 *  can not be retrieved by Entity::has<T>() function
-	 *  @return The new valid entity
+	 *  can not be retrieved by EntityManager::with<...T>()
+	 *  @return A new valid entity
 	 */
 	Entity create();
 
@@ -44,7 +43,7 @@ public:
 	 *  @brief  Creates the vector of new entites
 	 *
 	 *  Keep in mind that entities without components 
-	 *  can not be retrieved by Entity::has<T>() function
+	 *  can not be retrieved by EntityManager::with<...T>() 
 	 *  @param  size Amount of the entities to create
 	 *  @return std::vector<Entity> with new entities
 	 */
@@ -54,15 +53,15 @@ public:
 	 *  @brief  Destroys the entity and all related components
 	 *
 	 *  The entity becomes invalid 
-	 *  @param  e The entity to destroy
+	 *  @param  e An entity to destroy
 	 */
 	void destroy(Entity &e);
 
 	/**
 	 *  @brief  Retrieves all entities with the specified set of components
 	 *
-	 *  @param  ...Components List of the component types to check
-	 *  @return The range of entities with specified components
+	 *  @param  ...Components A list of component types to check
+	 *  @return A range of entities with specified components
 	 *  @see Range
 	 */
 	template <typename ...Components>
@@ -74,8 +73,8 @@ private:
 	std::size_t 	 m_index;
 	stack<size_t>    m_free_ids;
 	ComponentManager m_cmanager;
+	std::mutex 	 m_mutex;
 };
-
 
 
 template <typename ...T>
@@ -84,7 +83,8 @@ Range EntityManager::with()
         return Range(*this, m_cmanager, details::component_mask<T...>()); 
 }
 
-}
+} //namespace core
+} //namespace eto
 
 #endif
 

@@ -1,6 +1,7 @@
 #include <core/ComponentManager.hpp>
 
-using namespace eto;
+using namespace eto::core;
+
 ComponentManager::ComponentManager()
 {
 }
@@ -14,6 +15,7 @@ ComponentManager::~ComponentManager()
 
 void ComponentManager::destroy_components(eid id)
 {
+	lock_t lock(m_mutex);
 	if(id < m_masks.size()) // entity has components
 	{
 		if (m_masks[id])

@@ -5,8 +5,10 @@
 #include <core/Iterator.hpp>
 
 using mask_t = std::uint64_t;
-namespace eto 
-{
+
+namespace eto {
+namespace core {
+
 class EntityManager;
 class ComponentManager;
 
@@ -31,6 +33,7 @@ private:
         mask_t m_mask;
 };
 
+}
 }
 
 #endif 

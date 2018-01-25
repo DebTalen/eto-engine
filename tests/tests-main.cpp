@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <core/Assert.hpp>
+#include <internal/Assert.hpp>
 
 int main( int argc, char *argv[] )
 {

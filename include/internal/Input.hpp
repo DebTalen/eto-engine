@@ -2,9 +2,9 @@
 #define ETO_INPUT_HPP
 
 #include <GLFW/glfw3.h>
-#include <core/Window.hpp>
-#include <core/GLFWevent.hpp>
-#include <core/Assert.hpp>
+#include <internal/Window.hpp>
+#include <internal/GLFWevent.hpp>
+#include <internal/Assert.hpp>
 #include <functional>
 #include <algorithm>
 #include <vector>
@@ -14,9 +14,8 @@ using eto::GLFWevent;
 using std::vector;
 using std::pair;
 
-namespace eto
-{
-
+namespace eto {
+namespace internal {
 /**
  *  @brief  Hander for the raw input data
  */
@@ -108,6 +107,7 @@ private:
 	CallbackId next_callback_id;
 };	
 
-}
+} // namespace internal
+} // namespace eto
 
 #endif //ETO_INPUT_HPP

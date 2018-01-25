@@ -1,8 +1,8 @@
 #include <catch.hpp>
-#include <core/ComponentPool.hpp>
 #include <vector>
+#include <core/ComponentPool.hpp>
 
-using namespace eto;
+using namespace eto::core;
 
 TEST_CASE("Component manager with basic type", "[ComponentPool]")
 {

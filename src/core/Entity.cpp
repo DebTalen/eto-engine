@@ -1,7 +1,7 @@
 #include <core/Entity.hpp>
 #include <core/EntityManager.hpp>
 
-using namespace eto;
+using namespace eto::core;
 
 Entity::Entity(EntityManager &emanager, ComponentManager &cmanager, eid id)
         : m_id(id), m_valid(1),
@@ -29,7 +29,6 @@ void Entity::destroy()
 bool Entity::operator==(const Entity &rhs) const
 {
         return (&m_emanager == &rhs.m_emanager &&
-		&m_cmanager == &rhs.m_cmanager &&
                 m_valid == rhs.m_valid 	       &&
                 m_id    == rhs.m_id );
 }
