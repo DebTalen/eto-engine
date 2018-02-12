@@ -45,7 +45,6 @@ public:
 	void destroy_components(eid id);
 
 	ComponentManager(const ComponentManager &rhs) = delete;
-	ComponentManager(const ComponentManager &&rhs) = delete;
 	ComponentManager& operator=(const ComponentManager &rhs) = delete;
 
 private:
